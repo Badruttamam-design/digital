@@ -20,7 +20,8 @@ const RamadhanMode: React.FC<RamadhanModeProps> = ({ isActive, prayerTimes, coor
         const updateRamadhanData = () => {
             try {
                 // Apply -1 day offset to the Hijri date
-                const hijriDate = moment().subtract(1, 'days') as any;
+                // const hijriDate = moment().subtract(1, 'days') as any;
+                // const day = hijriDate.iDate();
                 // const day = hijriDate.iDate();
                 // setDayNumber(day);
 

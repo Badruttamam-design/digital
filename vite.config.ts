@@ -4,6 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/digital/', // 🔥 TAMBAH DI SINI
   plugins: [
     react(),
     VitePWA({
@@ -38,6 +39,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,svg,png,mp3,woff2}'],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 🔥 TAMBAH DI SINI
         runtimeCaching: [
           {
             // Cache prayer time API responses (1 day)
