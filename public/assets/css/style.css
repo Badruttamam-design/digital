@@ -1,0 +1,1712 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; */
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-image: url(../images/x.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+.clock-container {
+    position: relative;
+}
+
+.analog-clock {
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle, #056263, #000d1a);
+}
+
+.analog-clock::before {
+    content: "";
+    width: 525px;
+    height: 525px;
+    position: absolute;
+    border-radius: 50%;
+    background: linear-gradient(#00d9ff, #ee00ff, #2f2dca);
+    box-shadow: 0 0 15px 15px rgba(1, 230, 255, 0.2);
+    z-index: -2;
+    animation: rotateClock 2s linear infinite;
+}
+
+@keyframes rotateClock {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+#runningText,
+#nextPrayerText {
+    font-size: 25px;
+    font-family: sans-serif;
+    text-align: center;
+    position: absolute;
+    bottom: 100px;
+    color: #00d9ff;
+    z-index: 1;
+}
+
+/* Running Text Animation - Bergerak di tempat (dalam container) */
+#runningText {
+    /* width: 100%; */
+    max-width: 480px;
+    /* Batasi lebar sesuai jam analog */
+    overflow: hidden;
+    white-space: nowrap;
+    display: none;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#runningText.running {
+    display: block;
+}
+
+#runningText span {
+    display: inline-block;
+    animation: marqueeInPlace 8s linear infinite;
+}
+
+@keyframes marqueeInPlace {
+    0% {
+        transform: translateX(100%);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+#islamic-date {
+    font-size: 17px;
+    text-align: center;
+    position: absolute;
+    font-family: 'Droid Arabic Naskh', serif;
+    bottom: 127px;
+    color: #00d9ff;
+    z-index: 1;
+}
+
+.hand {
+    position: absolute;
+    background: white;
+    transform-origin: bottom;
+    bottom: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.hour-hand {
+    position: absolute;
+    width: 8px;
+    height: 120px;
+    background: linear-gradient(#00d9ff, #ee00ff);
+    border-radius: 30px 30px 0 0;
+    z-index: 3;
+}
+
+.minute-hand {
+    position: absolute;
+    width: 6px;
+    height: 160px;
+    background: linear-gradient(to top, #00d9ff, #ee00ff);
+    border-radius: 30px 30px 0 0;
+    z-index: 3;
+}
+
+.second-hand {
+    position: absolute;
+    width: 4px;
+    height: 200px;
+    background: linear-gradient(to top, #00d9ff, #ee00ff);
+    border-radius: 30px 30px 0 0;
+    z-index: 3;
+}
+
+.digital-clock {
+    font-size: 40px;
+    font-family: sans-serif;
+    text-align: center;
+    position: absolute;
+    border: 2px solid #00d9ff;
+    background: radial-gradient(#056263, #000d1a);
+    border-radius: 5px;
+    padding: 0 5px;
+    top: 100px;
+    color: #00d9ff;
+    z-index: 1;
+}
+
+.seconds {
+    color: #ee00ff;
+}
+
+.number {
+    transform: rotate(calc(30deg * var(--n)));
+    position: absolute;
+    text-align: center;
+    inset: 10px;
+    font-size: 40px;
+    color: #00d9ff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.number b {
+    transform: rotate(calc(-30deg * var(--n)));
+    display: inline-block;
+}
+
+.center-dot {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    background-color: #ee00ff;
+    border: 6px solid #00d9ff;
+    border-radius: 50%;
+    z-index: 3;
+}
+
+/* Progress Ring Styles */
+.progress-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-90deg);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.progress-ring-circle {
+    stroke: #ffea00;
+    stroke-linecap: round;
+    stroke-dasharray: 1645.4;
+    stroke-dashoffset: 1645.4;
+    transition: stroke-dashoffset 1s ease, stroke 0.5s ease;
+}
+
+.progress-ring-circle.near-prayer {
+    stroke: #ee00ff;
+}
+
+/* Tick Marks for Hours and Minutes */
+.tick-marks {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.tick {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform-origin: center 250px;
+    width: 2px;
+    height: 10px;
+    background: rgba(0, 217, 255, 0.5);
+    margin-left: -1px;
+}
+
+.tick.hour {
+    width: 3px;
+    height: 18px;
+    background: linear-gradient(to bottom, #00d9ff, #ee00ff);
+    margin-left: -1.5px;
+    box-shadow: 0 0 3px rgba(0, 217, 255, 0.4);
+}
+
+.date {
+    font-size: 20px;
+    font-family: sans-serif;
+    text-align: center;
+    position: absolute;
+    top: 160px;
+    color: #00d9ff;
+    z-index: 1;
+}
+
+#location {
+    font-size: 20px;
+    font-family: sans-serif;
+    text-align: center;
+    position: absolute;
+    top: 180px;
+    color: #00d9ff;
+    z-index: 1;
+}
+
+#weather-info {
+    font-size: 20px;
+    font-family: sans-serif;
+    text-align: center;
+    position: absolute;
+    top: 300px;
+    width: 100%;
+    color: #ffd700;
+    z-index: 1;
+}
+
+#particles-js {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+#prayer-times {
+    display: flex;
+    justify-content: space-between;
+    font-size: 55px;
+    width: 95%;
+    align-items: center;
+    padding: 0 20px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: hsla(190, 100%, 60%, 0.125);
+    font-family: sans-serif;
+    gap: 50px;
+    z-index: -1;
+}
+
+#left-times,
+#right-times {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+#left-times {
+    justify-content: flex-start;
+}
+
+#right-times {
+    justify-content: flex-end;
+}
+
+/* Countdown Pulse Animation */
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
+}
+
+@keyframes glow {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.4));
+    }
+
+    50% {
+        filter: drop-shadow(0 0 20px rgba(238, 0, 255, 0.8));
+    }
+}
+
+.countdown-active {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.countdown-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, rgba(0, 217, 255, 0.2), rgba(238, 0, 255, 0.2));
+    backdrop-filter: blur(10px);
+    border: 2px solid #00d9ff;
+    border-radius: 15px;
+    padding: 15px 30px;
+    font-size: 20px;
+    color: #00d9ff;
+    font-family: sans-serif;
+    font-weight: bold;
+    z-index: 1000;
+    opacity: 0;
+    display: none;
+    pointer-events: none;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+}
+
+.countdown-notification.show {
+    opacity: 1;
+    display: block;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+}
+
+.countdown-notification.pulse {
+    animation: glow 1.5s ease-in-out infinite;
+}
+
+/* Location Change Notification */
+.location-notification {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(251, 191, 36, 0.25));
+    backdrop-filter: blur(15px);
+    border: 2px solid #22c55e;
+    border-radius: 15px;
+    padding: 12px 25px;
+    font-size: 16px;
+    color: #22c55e;
+    font-family: sans-serif;
+    font-weight: bold;
+    z-index: 1000;
+    opacity: 0;
+    display: none;
+    pointer-events: none;
+    transition: all 0.4s ease;
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+}
+
+.location-notification.show {
+    opacity: 1;
+    display: block;
+    transform: translateX(-50%) translateY(0);
+    animation: slideInBounce 0.5s ease-out;
+}
+
+@keyframes slideInBounce {
+    0% {
+        transform: translateX(-50%) translateY(-30px);
+        opacity: 0;
+    }
+
+    50% {
+        transform: translateX(-50%) translateY(5px);
+    }
+
+    100% {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ====================================
+   RAMADHAN MODE STYLES
+   ==================================== */
+
+/* Ramadhan Theme Variables */
+:root {
+    --ramadhan-primary: #10b981;
+    --ramadhan-gold: #fbbf24;
+    --ramadhan-purple: #a855f7;
+    --ramadhan-teal: #14b8a6;
+    --ramadhan-green: #22c55e;
+}
+
+/* Ramadhan Mode Body Overlay */
+body.ramadhan-mode::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg,
+            rgba(16, 185, 129, 0.08) 0%,
+            rgba(251, 191, 36, 0.05) 50%,
+            rgba(168, 85, 247, 0.08) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Clock transformations for Ramadhan */
+.ramadhan-mode .analog-clock::before {
+    background: linear-gradient(var(--ramadhan-green), var(--ramadhan-gold), var(--ramadhan-purple));
+    box-shadow: 0 0 15px 15px rgba(251, 191, 36, 0.3);
+}
+
+.ramadhan-mode .progress-ring-circle {
+    stroke: #00d9ff;
+    /* Blue color */
+}
+
+.ramadhan-mode .progress-ring-circle.near-prayer {
+    stroke: #00d9ff;
+    /* Blue color when near prayer time */
+}
+
+.ramadhan-mode .hour-hand,
+.ramadhan-mode .minute-hand,
+.ramadhan-mode .second-hand {
+    background: linear-gradient(to top, var(--ramadhan-green), var(--ramadhan-gold));
+}
+
+/* Ramadhan Countdown Display */
+.ramadhan-countdown {
+    position: fixed;
+    bottom: 40px;
+    left: 200px;
+    transform: none;
+    text-align: center;
+    background: linear-gradient(135deg,
+            rgba(16, 185, 129, 0.25),
+            rgba(251, 191, 36, 0.25));
+    backdrop-filter: blur(20px);
+    border: 2px solid var(--ramadhan-gold);
+    border-radius: 20px;
+    padding: 15px 20px;
+    z-index: 100;
+    box-shadow: 0 0 25px rgba(251, 191, 36, 0.4),
+        0 0 50px rgba(16, 185, 129, 0.2);
+    opacity: 1;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    pointer-events: none;
+}
+
+.ramadhan-countdown.hidden {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+    pointer-events: none;
+}
+
+.countdown-label {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--ramadhan-gold);
+    margin-bottom: 8px;
+    font-family: 'Droid Arabic Naskh', serif;
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+}
+
+.countdown-time {
+    font-size: 36px;
+    font-weight: bold;
+    color: var(--ramadhan-green);
+    font-family: 'Arial', sans-serif;
+    letter-spacing: 4px;
+    text-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
+    animation: pulseglow 2s ease-in-out infinite;
+}
+
+.countdown-subtext {
+    font-size: 12px;
+    color: var(--ramadhan-purple);
+    margin-top: 8px;
+    font-family: sans-serif;
+}
+
+@keyframes pulseglow {
+
+    0%,
+    100% {
+        text-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+        transform: scale(1);
+    }
+
+    50% {
+        text-shadow: 0 0 30px rgba(251, 191, 36, 0.8);
+        transform: scale(1.02);
+    }
+}
+
+/* Ramadhan Progress Indicator */
+.ramadhan-progress {
+    position: fixed;
+    bottom: 40px;
+    left: 30px;
+    width: 155px;
+    min-height: 180px;
+    text-align: center;
+    background: linear-gradient(135deg,
+            rgba(16, 185, 129, 0.2),
+            rgba(251, 191, 36, 0.2));
+    backdrop-filter: blur(15px);
+    border: 2px solid var(--ramadhan-gold);
+    border-radius: 20px;
+    padding: 15px;
+    z-index: 100;
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.ramadhan-progress.hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+}
+
+.progress-circle {
+    margin: 0 auto 5px;
+    display: block;
+    flex-shrink: 0;
+}
+
+.progress-fill {
+    stroke-dashoffset: 339.292;
+    transition: stroke-dashoffset 1s ease;
+}
+
+.progress-text {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.progress-day {
+    font-size: 32px;
+    font-weight: bold;
+    color: var(--ramadhan-gold);
+    font-family: sans-serif;
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+    line-height: 1;
+}
+
+.progress-label {
+    font-size: 12px;
+    color: var(--ramadhan-green);
+    font-family: 'Droid Arabic Naskh', serif;
+    margin-top: 2px;
+}
+
+.progress-eid {
+    font-size: 13px;
+    color: var(--ramadhan-purple);
+    margin-top: 10px;
+    font-family: sans-serif;
+    font-weight: bold;
+    padding: 0 5px;
+    text-align: center;
+    line-height: 1.3;
+}
+
+/* Imsakiyah Toggle Button */
+.imsakiyah-toggle-btn {
+    position: fixed;
+    bottom: 45px;
+    right: 95px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ramadhan-green), var(--ramadhan-gold));
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    z-index: 100;
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+}
+
+.imsakiyah-toggle-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.8);
+}
+
+.imsakiyah-toggle-btn.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.5);
+}
+
+/* Imsakiyah Modal */
+.imsakiyah-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 300;
+    transition: opacity 0.3s ease;
+}
+
+.imsakiyah-modal.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.imsakiyah-modal .modal-content {
+    background: linear-gradient(135deg, rgba(5, 98, 99, 0.98), rgba(0, 13, 26, 0.98));
+    border: 3px solid var(--ramadhan-gold);
+    border-radius: 25px;
+    padding: 35px;
+    max-width: 700px;
+    width: 90%;
+    max-height: 85vh;
+    position: relative;
+    box-shadow: 0 0 60px rgba(251, 191, 36, 0.6);
+    overflow: hidden;
+}
+
+.imsakiyah-modal h2 {
+    color: var(--ramadhan-gold);
+    font-size: 28px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-family: 'Droid Arabic Naskh', serif;
+    text-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+}
+
+.hijri-year-display {
+    text-align: center;
+    color: var(--ramadhan-green);
+    font-size: 18px;
+    margin-bottom: 20px;
+    font-family: 'Droid Arabic Naskh', serif;
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: 2px solid var(--ramadhan-purple);
+    color: var(--ramadhan-purple);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+    background: var(--ramadhan-purple);
+    color: #000;
+    transform: rotate(90deg);
+}
+
+.imsakiyah-table-container {
+    max-height: 60vh;
+    overflow-y: auto;
+    border-radius: 15px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ramadhan-gold) rgba(0, 217, 255, 0.1);
+}
+
+.imsakiyah-table-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.imsakiyah-table-container::-webkit-scrollbar-track {
+    background: rgba(0, 217, 255, 0.1);
+    border-radius: 10px;
+}
+
+.imsakiyah-table-container::-webkit-scrollbar-thumb {
+    background: var(--ramadhan-gold);
+    border-radius: 10px;
+}
+
+#imsakiyah-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: sans-serif;
+}
+
+#imsakiyah-table thead {
+    position: sticky;
+    top: 0;
+    background: linear-gradient(135deg, var(--ramadhan-green), var(--ramadhan-gold));
+    z-index: 10;
+}
+
+#imsakiyah-table th {
+    padding: 15px;
+    text-align: center;
+    color: #000;
+    font-weight: bold;
+    font-size: 16px;
+    border-bottom: 2px solid var(--ramadhan-gold);
+}
+
+#imsakiyah-table td {
+    padding: 12px;
+    text-align: center;
+    color: #00d9ff;
+    border-bottom: 1px solid rgba(0, 217, 255, 0.2);
+}
+
+#imsakiyah-table tbody tr {
+    background: rgba(0, 217, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+#imsakiyah-table tbody tr:nth-child(even) {
+    background: rgba(16, 185, 129, 0.08);
+}
+
+#imsakiyah-table tbody tr:hover {
+    background: rgba(251, 191, 36, 0.15);
+    transform: scale(1.01);
+}
+
+#imsakiyah-table tbody tr.current-day {
+    background: linear-gradient(135deg,
+            rgba(251, 191, 36, 0.3),
+            rgba(16, 185, 129, 0.3));
+    border: 2px solid var(--ramadhan-gold);
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+}
+
+#imsakiyah-table tbody tr.current-day td {
+    color: var(--ramadhan-gold);
+    font-weight: bold;
+}
+
+/* ====================================
+   CALENDAR STYLES
+   ==================================== */
+
+/* Calendar Toggle Button */
+.calendar-toggle-btn {
+    position: fixed;
+    bottom: 45px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00d9ff, #ee00ff);
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    z-index: 100;
+    box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.calendar-toggle-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px rgba(238, 0, 255, 0.8);
+}
+
+/* Mini Calendar Container */
+.mini-calendar {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 420px;
+    background: linear-gradient(135deg, rgba(5, 98, 99, 0.95), rgba(0, 13, 26, 0.95));
+    backdrop-filter: blur(15px);
+    border: 2px solid #00d9ff;
+    border-radius: 20px;
+    padding: 20px;
+    z-index: 99;
+    box-shadow: 0 0 40px rgba(0, 217, 255, 0.3);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.mini-calendar.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+}
+
+/* Calendar Header */
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.calendar-title {
+    text-align: center;
+    flex: 1;
+}
+
+#calendar-month-year {
+    font-size: 22px;
+    font-weight: bold;
+    color: #00d9ff;
+    font-family: sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.hijri-month {
+    font-size: 16px;
+    color: #ee00ff;
+    font-family: 'Droid Arabic Naskh', serif;
+    margin-top: 5px;
+}
+
+.calendar-nav-btn {
+    background: linear-gradient(135deg, rgba(0, 217, 255, 0.3), rgba(238, 0, 255, 0.3));
+    border: 2px solid #00d9ff;
+    color: #00d9ff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.calendar-nav-btn:hover {
+    background: linear-gradient(135deg, #00d9ff, #ee00ff);
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(0, 217, 255, 0.5);
+}
+
+/* Calendar Weekdays */
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.calendar-weekdays div {
+    color: #ffd700;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 8px 0;
+    font-family: sans-serif;
+}
+
+/* Calendar Dates Grid */
+.calendar-dates {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-bottom: 15px;
+}
+
+.calendar-date {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 217, 255, 0.1);
+    border: 1px solid rgba(0, 217, 255, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 5px;
+    position: relative;
+}
+
+.calendar-date:hover {
+    background: rgba(0, 217, 255, 0.3);
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+}
+
+.calendar-date.other-month {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.calendar-date.today {
+    background: linear-gradient(135deg, rgba(0, 217, 255, 0.5), rgba(238, 0, 255, 0.5));
+    border: 2px solid #ee00ff;
+    box-shadow: 0 0 15px rgba(238, 0, 255, 0.6);
+}
+
+.calendar-date.friday {
+    border: 2px solid #ffd700;
+}
+
+.calendar-date.friday::after {
+    /* content: '🕌'; */
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 10px;
+}
+
+.date-number {
+    font-size: 16px;
+    color: #00d9ff;
+    font-weight: bold;
+    font-family: sans-serif;
+}
+
+.date-hijri {
+    font-size: 15px;
+    color: #ffff00;
+    /* font-family: 'Droid Arabic Naskh', serif; */
+    /* margin-top: 2px; */
+}
+
+/* Calendar Close Button */
+.calendar-close-btn {
+    text-align: center;
+}
+
+#close-calendar {
+    background: linear-gradient(135deg, rgba(238, 0, 255, 0.3), rgba(0, 217, 255, 0.3));
+    border: 2px solid #ee00ff;
+    color: #ee00ff;
+    padding: 8px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: sans-serif;
+    transition: all 0.3s ease;
+}
+
+#close-calendar:hover {
+    background: linear-gradient(135deg, #ee00ff, #00d9ff);
+    color: #000;
+    box-shadow: 0 0 15px rgba(238, 0, 255, 0.5);
+}
+
+/* Prayer Times Popup */
+.prayer-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+    transition: opacity 0.3s ease;
+}
+
+.prayer-popup.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.popup-content {
+    background: linear-gradient(135deg, rgba(5, 98, 99, 0.98), rgba(0, 13, 26, 0.98));
+    border: 3px solid #00d9ff;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 0 50px rgba(0, 217, 255, 0.5);
+}
+
+.popup-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: 2px solid #ee00ff;
+    color: #ee00ff;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.popup-close:hover {
+    background: #ee00ff;
+    color: #000;
+    transform: rotate(90deg);
+}
+
+#popup-date {
+    color: #00d9ff;
+    font-size: 24px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-family: sans-serif;
+}
+
+.popup-hijri {
+    color: #ee00ff;
+    font-size: 18px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: 'Droid Arabic Naskh', serif;
+}
+
+.popup-prayer-times {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.prayer-time-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: rgba(0, 217, 255, 0.1);
+    border: 1px solid rgba(0, 217, 255, 0.3);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.prayer-time-item:hover {
+    background: rgba(0, 217, 255, 0.2);
+    border-color: #00d9ff;
+    box-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
+}
+
+.prayer-time-item span:first-child {
+    color: #ffd700;
+    font-weight: bold;
+    font-family: sans-serif;
+}
+
+.prayer-time-item span:last-child {
+    color: #00d9ff;
+    font-weight: bold;
+    font-family: sans-serif;
+}
+
+.footer {
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    overflow: hidden;
+    color: #00d9ff;
+    padding: 10px 0;
+    font-family: 'Droid Arabic Naskh', serif;
+    z-index: 2;
+}
+
+/* Media Queries for Responsiveness */
+@media screen and (max-width: 768px) {
+    .analog-clock {
+        width: 350px;
+        height: 350px;
+    }
+
+    .analog-clock::before {
+        width: 375px;
+        height: 375px;
+    }
+
+    .hour-hand {
+        width: 6px;
+        height: 90px;
+    }
+
+    .minute-hand {
+        width: 5px;
+        height: 120px;
+    }
+
+    .second-hand {
+        width: 2px;
+        height: 150px;
+    }
+
+    .digital-clock {
+        font-size: 25px;
+        top: 75px;
+    }
+
+    .number {
+        font-size: 27px;
+        inset: 12px;
+    }
+
+    .tick {
+        transform-origin: center 175px;
+    }
+
+    .tick.hour {
+        height: 15px;
+    }
+
+    .number b {
+        font-family: 'Arial', sans-serif;
+    }
+
+    .date {
+        font-size: 12px;
+        top: 115px;
+        font-family: sans-serif;
+
+    }
+
+    #location {
+        font-size: 15px;
+        top: 125px;
+        font-family: sans-serif;
+    }
+
+    #weather-info {
+        font-size: 15px;
+        top: 210px;
+    }
+
+    /* Progress Ring Responsive - Scale down proportionally */
+    .progress-ring {
+        transform: translate(-50%, -50%) rotate(-90deg) scale(0.7);
+    }
+
+    #runningText,
+    #nextPrayerText {
+        font-size: 17px;
+        bottom: 75px;
+        font-family: sans-serif;
+    }
+
+    #runningText {
+        max-width: 340px;
+        /* Sesuaikan dengan ukuran jam analog tablet (350px) */
+    }
+
+    #runningText span {
+        animation: marqueeInPlace 6s linear infinite;
+    }
+
+    #islamic-date {
+        font-size: 15px;
+        bottom: 95px;
+    }
+
+    #prayer-times {
+        font-size: 30px;
+        flex-direction: column;
+        gap: 10px;
+        width: 90%;
+        height: 90%;
+        top: 10%;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: sans-serif;
+    }
+
+
+    #left-times {
+        text-align: center;
+        position: fixed;
+        bottom: 85%;
+        width: 100%;
+        color: hsla(190, 100%, 60%, 0.209);
+        z-index: 2;
+    }
+
+    #right-times {
+        text-align: center;
+        position: fixed;
+        top: 500px;
+        width: 100%;
+        padding: 10px 0;
+        color: hsla(190, 100%, 60%, 0.26);
+        z-index: 2;
+    }
+
+    /* Tick Marks Responsive for Tablet */
+    .tick {
+        transform-origin: center 175px;
+        width: 1.5px;
+        height: 7px;
+    }
+
+    .tick.hour {
+        width: 2.5px;
+        height: 13px;
+    }
+
+    /* Ramadhan Progress - Mobile */
+    .ramadhan-progress {
+        bottom: 20px;
+        left: 10px;
+        right: auto;
+        transform: none;
+        width: 100px;
+        min-height: 140px;
+        padding: 8px;
+    }
+
+    .progress-circle {
+        width: 75px;
+        height: 75px;
+    }
+
+    .progress-circle .progress-bg,
+    .progress-circle .progress-fill {
+        r: 33;
+        cx: 37.5;
+        cy: 37.5;
+        stroke-width: 4;
+    }
+
+    .progress-fill {
+        stroke-dasharray: 207.2;
+        stroke-dashoffset: 207.2;
+    }
+
+    .progress-text {
+        top: 32px;
+    }
+
+    .progress-day {
+        font-size: 20px;
+    }
+
+    .progress-label {
+        font-size: 9px;
+    }
+
+    .progress-eid {
+        font-size: 10px;
+        margin-top: 8px;
+        line-height: 1.2;
+        padding: 0 2px;
+    }
+
+    /* Calendar Responsive - Tablet */
+    .calendar-toggle-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+        bottom: 35px;
+        right: 20px;
+    }
+
+    .mini-calendar {
+        width: 360px;
+        bottom: 110px;
+        right: 20px;
+        padding: 15px;
+    }
+
+    #calendar-month-year {
+        font-size: 18px;
+    }
+
+    .hijri-month {
+        font-size: 14px;
+    }
+
+    .calendar-nav-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 20px;
+    }
+
+    .calendar-weekdays div {
+        font-size: 11px;
+    }
+
+    .date-number {
+        font-size: 14px;
+    }
+
+    .date-hijri {
+        font-size: 12px;
+    }
+
+}
+
+@media screen and (max-width: 480px) {
+    .clock-container {
+        margin-top: -20px;
+    }
+
+    .analog-clock {
+        width: 250px;
+        height: 250px;
+    }
+
+    .analog-clock::before {
+        width: 270px;
+        height: 270px;
+    }
+
+    .hour-hand {
+        width: 5px;
+        height: 60px;
+    }
+
+    .minute-hand {
+        width: 4px;
+        height: 90px;
+    }
+
+    .second-hand {
+        width: 2px;
+        height: 120px;
+    }
+
+    .digital-clock {
+        font-size: 20px;
+        padding: 0 2px;
+        top: 45px;
+        font-family: 'Arial', sans-serif;
+    }
+
+    .number {
+        font-size: 17px;
+        inset: 9px;
+    }
+
+    .number b {
+        font-family: 'Arial', sans-serif;
+    }
+
+    .tick {
+        transform-origin: center 125px;
+        height: 6px;
+    }
+
+    .tick.hour {
+        height: 12px;
+    }
+
+    .date {
+        font-size: 11px;
+        top: 75px;
+        font-family: sans-serif;
+    }
+
+    #location {
+        font-size: 10px;
+        top: 90px;
+        font-family: sans-serif;
+    }
+
+    #weather-info {
+        font-size: 11px;
+        top: 160px;
+    }
+
+    #runningText,
+    #nextPrayerText {
+        font-size: 13px;
+        bottom: 45px;
+        font-family: sans-serif;
+    }
+
+    #runningText {
+        max-width: 240px;
+        /* Sesuaikan dengan ukuran jam analog mobile (250px) */
+    }
+
+    #runningText span {
+        animation: marqueeInPlace 5s linear infinite;
+    }
+
+    #islamic-date {
+        font-size: 11px;
+        bottom: 57px;
+    }
+
+    .center-dot {
+        width: 15px;
+        height: 15px;
+    }
+
+    /* Progress Ring Responsive Mobile - Scale down more */
+    .progress-ring {
+        transform: translate(-50%, -50%) rotate(-90deg) scale(0.5);
+    }
+
+    #prayer-times {
+        font-size: 20px;
+        flex-direction: column;
+        gap: 1px;
+        width: 90%;
+        top: 10%;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: sans-serif;
+    }
+
+    #left-times,
+    #right-times {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    #left-times {
+        text-align: center;
+        position: fixed;
+        bottom: 570px;
+        width: 100%;
+        z-index: 2;
+    }
+
+    #right-times {
+        text-align: center;
+        position: fixed;
+        top: 460px;
+        width: 100%;
+        z-index: 2;
+    }
+
+    /* Tick Marks Responsive for Mobile */
+    .tick {
+        transform-origin: center 125px;
+        width: 1px;
+        height: 5px;
+    }
+
+    .tick.hour {
+        width: 2px;
+        height: 10px;
+    }
+
+    /* Imsakiyah Button - Mobile */
+    .imsakiyah-toggle-btn {
+        bottom: 20px;
+        right: 80px;
+        left: auto;
+        width: 50px;
+        height: 50px;
+        font-size: 26px;
+    }
+
+    /* Calendar Responsive - Mobile */
+    .calendar-toggle-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+        bottom: 25px;
+        right: 15px;
+    }
+
+    .mini-calendar {
+        width: 95%;
+        max-width: 320px;
+        bottom: 95px;
+        right: 50%;
+        transform: translateX(50%);
+        padding: 12px;
+    }
+
+    .mini-calendar.hidden {
+        transform: translateX(50%) translateY(20px);
+    }
+
+    #calendar-month-year {
+        font-size: 16px;
+    }
+
+    .hijri-month {
+        font-size: 12px;
+    }
+
+    .calendar-nav-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 18px;
+    }
+
+    .calendar-weekdays div {
+        font-size: 9px;
+        padding: 4px 0;
+    }
+
+    .calendar-dates {
+        gap: 3px;
+    }
+
+    .calendar-date {
+        padding: 2px;
+        min-height: 40px;
+    }
+
+    .date-number {
+        font-size: 11px;
+        line-height: 1.2;
+    }
+
+    .date-hijri {
+        font-size: 8px;
+        line-height: 1.1;
+        margin-top: 1px;
+    }
+
+    .popup-content {
+        padding: 20px;
+        max-width: 90%;
+    }
+
+    #popup-date {
+        font-size: 18px;
+    }
+
+    .popup-hijri {
+        font-size: 14px;
+    }
+
+    .prayer-time-item {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+
+    /* ====================================
+       RAMADHAN MODE - SMALL MOBILE (480px)
+       ==================================== */
+
+    /* Ramadhan Countdown - Small Mobile */
+    .ramadhan-countdown {
+        top: 15px;
+        left: 50%;
+        bottom: auto;
+        transform: translateX(-50%);
+        padding: 10px 15px;
+        max-width: 95%;
+        box-sizing: border-box;
+    }
+
+    .countdown-label {
+        font-size: 12px;
+        margin-bottom: 5px;
+    }
+
+    .countdown-time {
+        font-size: 24px;
+        letter-spacing: 2px;
+    }
+
+    .countdown-subtext {
+        font-size: 9px;
+        margin-top: 4px;
+    }
+
+    /* Ramadhan Progress - Small Mobile */
+    .ramadhan-progress {
+        bottom: 10px;
+        left: 5px;
+        width: 110px;
+        min-height: 145px;
+        padding: 8px 6px;
+    }
+
+    .progress-circle {
+        width: 75px;
+        height: 75px;
+    }
+
+    .progress-circle .progress-bg,
+    .progress-circle .progress-fill {
+        r: 33;
+        cx: 37.5;
+        cy: 37.5;
+        stroke-width: 4;
+    }
+
+    .progress-fill {
+        stroke-dasharray: 207.2;
+        stroke-dashoffset: 207.2;
+    }
+
+    .progress-text {
+        top: 32px;
+    }
+
+    .progress-day {
+        font-size: 22px;
+    }
+
+    .progress-label {
+        font-size: 9px;
+    }
+
+    .progress-eid {
+        font-size: 10px;
+        margin-top: 8px;
+        line-height: 1.2;
+    }
+
+    /* Imsakiyah Button - Small Mobile */
+    .imsakiyah-toggle-btn {
+        bottom: 15px;
+        right: 70px;
+        width: 45px;
+        height: 45px;
+        font-size: 24px;
+    }
+
+    /* Calendar Button - Small Mobile */
+    .calendar-toggle-btn {
+        bottom: 15px !important;
+        right: 15px !important;
+        width: 45px !important;
+        height: 45px !important;
+        font-size: 24px !important;
+    }
+
+    /* Imsakiyah Modal - Small Mobile */
+    .imsakiyah-modal .modal-content {
+        padding: 18px 10px;
+        max-width: 98%;
+    }
+
+    .imsakiyah-modal h2 {
+        font-size: 18px;
+        margin-bottom: 6px;
+    }
+
+    .hijri-year-display {
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+
+    .modal-close {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+        top: 10px;
+        right: 10px;
+    }
+
+    .imsakiyah-table-container {
+        max-height: 50vh;
+    }
+
+    #imsakiyah-table th {
+        padding: 8px 4px;
+        font-size: 11px;
+    }
+
+    #imsakiyah-table td {
+        padding: 8px 4px;
+        font-size: 10px;
+    }
+
+}
