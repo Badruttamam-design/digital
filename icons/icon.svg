@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="80" fill="#0a0f1e"/>
+  <!-- Outer ring -->
+  <circle cx="256" cy="256" r="185" fill="none" stroke="#c9a84c" stroke-width="6" stroke-opacity="0.4"/>
+  <!-- Clock face -->
+  <circle cx="256" cy="256" r="165" fill="#111827" stroke="#c9a84c" stroke-width="4"/>
+  <!-- Center dot -->
+  <circle cx="256" cy="256" r="10" fill="#c9a84c"/>
+  <!-- Hour markers (12, 3, 6, 9) -->
+  <line x1="256" y1="98" x2="256" y2="124" stroke="#c9a84c" stroke-width="8" stroke-linecap="round"/>
+  <line x1="414" y1="256" x2="388" y2="256" stroke="#c9a84c" stroke-width="8" stroke-linecap="round"/>
+  <line x1="256" y1="414" x2="256" y2="388" stroke="#c9a84c" stroke-width="8" stroke-linecap="round"/>
+  <line x1="98" y1="256" x2="124" y2="256" stroke="#c9a84c" stroke-width="8" stroke-linecap="round"/>
+  <!-- Minor hour markers -->
+  <line x1="340" y1="113" x2="327" y2="135" stroke="#c9a84c" stroke-width="4" stroke-linecap="round" stroke-opacity="0.7"/>
+  <line x1="399" y1="172" x2="377" y2="185" stroke="#c9a84c" stroke-width="4" stroke-linecap="round" stroke-opacity="0.7"/>
+  <line x1="399" y1="340" x2="377" y2="327" stroke="#c9a84c" stroke-width="4" stroke-linecap="round" stroke-opacity="0.7"/>
+  <line x1="340" y1="399" x2="327" y2="377" stroke="#c9a84c" stroke-width="4" stroke-linecap="round" stroke-opacity="0.7"/>
+  <line x1="172" y1="399" x2="185" y2="377" stroke="#c9a84c" stroke-width="4" stroke-linecap="round" stroke-opacity="0.7"/>
+  <line x1="113" y1="340" x2="135" y2="327" stroke="#c9a84c" stroke-width="4" stroke-linecap="round" stroke-opacity="0.7"/>
+  <line x1="113" y1="172" x2="135" y2="185" stroke="#c9a84c" stroke-width="4" stroke-linecap="round" stroke-opacity="0.7"/>
+  <line x1="172" y1="113" x2="185" y2="135" stroke="#c9a84c" stroke-width="4" stroke-linecap="round" stroke-opacity="0.7"/>
+  <!-- Hour hand (pointing ~5:00) -->
+  <line x1="256" y1="256" x2="308" y2="340" stroke="#f0d080" stroke-width="12" stroke-linecap="round"/>
+  <!-- Minute hand (pointing ~12:00) -->
+  <line x1="256" y1="256" x2="256" y2="125" stroke="#ffffff" stroke-width="7" stroke-linecap="round"/>
+  <!-- Crescent moon (top right) -->
+  <path d="M372 88 C400 100 403 145 374 158 C396 146 398 102 372 88Z" fill="#c9a84c"/>
+</svg>
