@@ -20,6 +20,7 @@ const App: React.FC = () => {
   const [prevCoords, setPrevCoords] = useState<{ lat: number; lon: number } | null>(null);
   const [locationVisible, setLocationVisible] = useState(false);
   const [now, setNow] = useState<Date>(new Date());
+  const basePath = import.meta.env.BASE_URL;
 
   const { nextPrayer, isAdzanRunning, notification, runningText } = usePrayerLogic(prayerTimes);
 
@@ -226,7 +227,7 @@ const App: React.FC = () => {
             } : undefined}
             locationName={undefined}
           />
-          <audio id="azanAudio" src="/assets/audio/adan.mp3" preload="auto"></audio>
+          <audio id="azanAudio" src={`${basePath}assets/audio/adan.mp3`} preload="auto"></audio>
         </section>
 
         {/* Zone 3: Prayer Sidebar (Right) */}

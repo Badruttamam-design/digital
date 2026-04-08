@@ -44,7 +44,10 @@ export const usePrayerLogic = (prayerTimes: PrayerTimings | null) => {
             setRunningText(`Masuk Adzan Sholat ${PRAYER_DISPLAY_NAMES[prayerName] || prayerName}`);
             const audio = document.getElementById('azanAudio') as HTMLAudioElement;
             if (audio) {
-                audio.src = prayerName === 'Subuh' ? '/assets/audio/azan_subuh.mp3' : '/assets/audio/adan.mp3';
+                const basePath = import.meta.env.BASE_URL;
+                audio.src = prayerName === 'Subuh'
+                    ? `${basePath}assets/audio/azan_subuh.mp3`
+                    : `${basePath}assets/audio/adan.mp3`;
                 audio.play().catch(console.error);
                 audio.onended = () => {
                     setIsAdzanRunning(false);
@@ -61,7 +64,8 @@ export const usePrayerLogic = (prayerTimes: PrayerTimings | null) => {
 
     const playDoaForFiveMinutes = useCallback(() => {
         if (!doaAudioRef.current) {
-            doaAudioRef.current = new Audio('/assets/audio/doa.mp3');
+            const basePath = import.meta.env.BASE_URL;
+            doaAudioRef.current = new Audio(`${basePath}assets/audio/doa.mp3`);
             doaAudioRef.current.preload = 'auto';
         }
 

@@ -9,7 +9,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icons/icon.svg', 'assets/audio/adan.mp3'],
+      includeAssets: ['icons/icon.svg', 'assets/audio/adan.mp3', 'assets/audio/azan_subuh.mp3', 'assets/audio/doa.mp3'],
       manifest: {
         name: 'Analog Prayer Clock',
         short_name: 'Analog',
