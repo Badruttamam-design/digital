@@ -11,13 +11,17 @@ interface PrayerTimings {
     [key: string]: string;
 }
 
-const PRAYER_DISPLAY_NAMES: Record<string, string> = {
-    Imsak: 'Imsak',
-    Fajr: 'Subuh',
-    Dhuhr: 'Dhuhur',
-    Asr: 'Ashar',
-    Maghrib: 'Maghrib',
-    Isha: 'Isya'
+const getPrayerDisplayName = (prayerKey: string, date: Date = new Date()) => {
+    const isFriday = date.getDay() === 5;
+    const names: Record<string, string> = {
+        Imsak: 'Imsak',
+        Fajr: 'Subuh',
+        Dhuhr: isFriday ? 'Jumat' : 'Dhuhur',
+        Asr: 'Ashar',
+        Maghrib: 'Maghrib',
+        Isha: 'Isya'
+    };
+    return names[prayerKey] || prayerKey;
 };
 
 export const usePrayerLogic = (prayerTimes: PrayerTimings | null) => {
@@ -41,7 +45,7 @@ export const usePrayerLogic = (prayerTimes: PrayerTimings | null) => {
                 setRunningText(null);
             }, 60000);
         } else {
-            setRunningText(`Masuk Adzan Sholat ${PRAYER_DISPLAY_NAMES[prayerName] || prayerName}`);
+            setRunningText(`Masuk Adzan Sholat ${getPrayerDisplayName(prayerName)}`);
             const audio = document.getElementById('azanAudio') as HTMLAudioElement;
             if (audio) {
                 const basePath = import.meta.env.BASE_URL;
@@ -155,7 +159,7 @@ export const usePrayerLogic = (prayerTimes: PrayerTimings | null) => {
                     const m = Math.floor(secondsUntilNext / 60);
                     const s = secondsUntilNext % 60;
                     setNotification({
-                        message: `⏰ ${PRAYER_DISPLAY_NAMES[nextKey] || nextKey} dalam ${m}:${String(s).padStart(2, '0')}`,
+                        message: `⏰ ${getPrayerDisplayName(nextKey)} dalam ${m}:${String(s).padStart(2, '0')}`,
                         type: 'warning'
                     });
                 } else {

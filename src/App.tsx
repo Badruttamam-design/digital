@@ -91,18 +91,19 @@ const App: React.FC = () => {
   }, []);
 
   // clockProps logic moved to JSX to avoid unused variable warning
-  const PRAYER_NAMES: Record<string, string> = {
+  const isFriday = now.getDay() === 5;
+  const PRAYER_DISPLAY_NAMES: Record<string, string> = {
     Imsak: 'Imsak',
     Fajr: 'Subuh',
-    Dhuhr: 'Dhuhur',
+    Dhuhr: isFriday ? 'Jumat' : 'Dhuhur',
     Asr: 'Ashar',
     Maghrib: 'Maghrib',
     Isha: 'Isya',
-    Sunrise: 'Terbit' // Just in case
+    Sunrise: 'Terbit'
   };
 
   const nextPrayerDisplay = nextPrayer
-    ? `${PRAYER_NAMES[nextPrayer.name] || nextPrayer.name} - ${Math.floor(nextPrayer.secondsUntil / 3600).toString().padStart(2, '0')}:${Math.floor((nextPrayer.secondsUntil % 3600) / 60).toString().padStart(2, '0')}:${(nextPrayer.secondsUntil % 60).toString().padStart(2, '0')}`
+    ? `${PRAYER_DISPLAY_NAMES[nextPrayer.name] || nextPrayer.name} - ${Math.floor(nextPrayer.secondsUntil / 3600).toString().padStart(2, '0')}:${Math.floor((nextPrayer.secondsUntil % 3600) / 60).toString().padStart(2, '0')}:${(nextPrayer.secondsUntil % 60).toString().padStart(2, '0')}`
     : '';
   const fastingProgress = Math.min(Math.max((fastingDay / totalFastingDays) * 100, 0), 100);
   const fastingPercent = Math.round(fastingProgress);
@@ -235,7 +236,7 @@ const App: React.FC = () => {
           {[
             { id: 'Imsak', name: 'Imsak' },
             { id: 'Fajr', name: 'Subuh' },
-            { id: 'Dhuhr', name: 'Dhuhur' },
+            { id: 'Dhuhr', name: isFriday ? 'Jumat' : 'Dhuhur' },
             { id: 'Asr', name: 'Ashar' },
             { id: 'Maghrib', name: 'Maghrib' },
             { id: 'Isha', name: 'Isya' }
