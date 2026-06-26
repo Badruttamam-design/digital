@@ -40,7 +40,7 @@ body {
   position: relative;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1024px) and (orientation: portrait) {
   body {
     align-items: flex-start;
   }
@@ -426,7 +426,7 @@ body::before {
       transparent 70%);
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1024px) and (orientation: portrait) {
   .app-zen-wrapper {
     min-height: 100vh;
     height: auto;
@@ -806,7 +806,7 @@ body::before {
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1024px) and (orientation: portrait) {
   .app-zen-grid {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr auto;
@@ -921,7 +921,7 @@ body::before {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px) and (orientation: portrait) {
   .zen-sidebar-right {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -990,7 +990,7 @@ body::before {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 480px) and (orientation: portrait) {
   .zen-sidebar-right {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
@@ -1060,6 +1060,27 @@ body::before {
   .iftar-countdown strong {
     font-size: 15px;
   }
+}
+
+/* =========================================================
+   Smart TV / set-top box dengan viewport CSS sempit (sering ~960px)
+   TAPI orientasi landscape: pertahankan layout 3-kolom (bukan mobile)
+   dan paskan ukuran jam ke ruang yang tersedia. Jarum & angka pakai %
+   supaya proporsional terhadap --clock-size, bukan px tetap.
+   ========================================================= */
+@media (orientation: landscape) and (max-width: 1100px) {
+  .analog-clock {
+    --clock-size: min(58vh, 40vw);
+  }
+
+  .hour-hand   { height: 23%;   width: 4px; }
+  .minute-hand { height: 31%;   width: 3px; }
+  .second-hand { height: 37.5%; width: 1.5px; }
+
+  .number       { inset: 6.5%; font-size: clamp(12px, 1.6vw, 18px); }
+  .digital-clock { font-size: clamp(28px, 4vw, 40px); }
+  .date,
+  .islamic      { font-size: clamp(11px, 1.4vw, 16px); }
 }
 
 /* Redesigned V7 Prayer Popup (Centered & Pro) */
