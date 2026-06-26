@@ -1426,3 +1426,70 @@ body::before {
 .hidden {
   display: none !important;
 }
+
+/* =========================================================
+   Large screens / Smart TV (10-foot UI)
+   Layout dasar di-tune untuk monitor ~1080p dengan ukuran px tetap.
+   Tanpa breakpoint min-width, di TV besar (Full HD / 4K) jam mentok
+   480px di tengah ruang kosong & teks (10-22px) tak terbaca dari jauh.
+   Blok ini menskalakan jam + tipografi mengikuti ukuran layar.
+   ========================================================= */
+@media (min-width: 1600px) {
+  .app-zen-grid {
+    grid-template-columns: minmax(340px, 1fr) minmax(620px, 2fr) minmax(340px, 1fr);
+    padding: 0 5vw;
+  }
+
+  /* Jam ikut membesar; tangan & angka pakai % agar proporsional */
+  .analog-clock {
+    --clock-size: clamp(540px, 36vw, 760px);
+  }
+
+  .hour-hand   { height: 23%;   width: 8px; }
+  .minute-hand { height: 31%;   width: 5px; }
+  .second-hand { height: 37.5%; width: 3px; }
+
+  .number      { inset: 6.5%; font-size: 30px; }
+  .digital-clock { font-size: 64px; }
+  .digital-clock .seconds { font-size: 22px; }
+  .date        { font-size: 18px; }
+  .islamic     { font-size: 24px; }
+
+  /* Sidebar kiri (meta info) */
+  .zen-meta-item .label   { font-size: 14px; }
+  .zen-meta-item .content { font-size: 20px; }
+  .puasa-content strong   { font-size: 22px; }
+  .puasa-percent          { font-size: 40px; }
+  .puasa-content em       { font-size: 15px; }
+  .puasa-progress-wrap small { font-size: 14px; }
+  .iftar-countdown span   { font-size: 13px; }
+  .iftar-countdown strong { font-size: 24px; }
+  .zen-icon-btn { width: 48px; height: 48px; font-size: 24px; }
+
+  /* Sidebar kanan (jadwal sholat) */
+  .zen-prayer-item .label { font-size: 14px; letter-spacing: 6px; }
+  .zen-prayer-item .time  { font-size: 30px; }
+}
+
+@media (min-width: 2560px) {
+  .analog-clock {
+    --clock-size: clamp(760px, 34vw, 1120px);
+  }
+
+  .number      { font-size: 42px; }
+  .digital-clock { font-size: 92px; }
+  .digital-clock .seconds { font-size: 30px; }
+  .date        { font-size: 26px; }
+  .islamic     { font-size: 34px; }
+
+  .zen-meta-item .label   { font-size: 18px; }
+  .zen-meta-item .content { font-size: 28px; }
+  .puasa-content strong   { font-size: 30px; }
+  .puasa-percent          { font-size: 56px; }
+  .puasa-content em       { font-size: 20px; }
+  .iftar-countdown strong { font-size: 34px; }
+  .zen-icon-btn { width: 64px; height: 64px; font-size: 32px; }
+
+  .zen-prayer-item .label { font-size: 18px; letter-spacing: 8px; }
+  .zen-prayer-item .time  { font-size: 42px; }
+}
