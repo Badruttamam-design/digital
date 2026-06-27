@@ -159,7 +159,7 @@ const App: React.FC = () => {
             )}
             <div className="zen-meta-item">
               <span className="label">Keadaan</span>
-              <span className="content">{isAdzanRunning ? 'Sedang Adzan' : (nextPrayer?.name === 'Imsak' ? 'Menunggu Waktu Imsak' : 'Menunggu Adzan ' + nextPrayer?.name)}</span>
+              <span className="content">{isAdzanRunning ? 'Sedang Adzan' : (nextPrayer?.name === 'Imsak' ? 'Menunggu Waktu Imsak' : 'Menunggu Adzan ' + (PRAYER_DISPLAY_NAMES[nextPrayer?.name ?? ''] || nextPrayer?.name || ''))}</span>
             </div>
             <div className="zen-meta-item puasa-highlight">
               <span className="label">Puasa</span>
