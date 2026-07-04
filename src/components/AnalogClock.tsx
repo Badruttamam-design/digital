@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { formatHijriDate } from '../utils/converter';
+import { formatHijriDate, pasaranOf } from '../utils/converter';
 import { DAY_NAMES, MONTH_NAMES } from '../constants';
+import AdzanOverlay from './AdzanOverlay';
 
 interface AnalogClockProps {
     prayerProgress?: {
@@ -10,9 +11,12 @@ interface AnalogClockProps {
         nextPrayerName: string;
     };
     locationName?: string;
+    adzan?: boolean;
+    doa?: boolean;
+    adzanText?: string | null;
 }
 
-const AnalogClock: React.FC<AnalogClockProps> = ({ prayerProgress, locationName }) => {
+const AnalogClock: React.FC<AnalogClockProps> = ({ prayerProgress, locationName, adzan, doa, adzanText }) => {
     const [time, setTime] = useState(new Date());
 
     useEffect(() => {
@@ -32,7 +36,7 @@ const AnalogClock: React.FC<AnalogClockProps> = ({ prayerProgress, locationName 
     const activeSecondNumber = seconds % 5 === 0 ? (seconds === 0 ? 12 : seconds / 5) : null;
 
     const dayIndex = time.getDay();
-    const dateStr = `${DAY_NAMES[dayIndex]}, ${String(time.getDate()).padStart(2, '0')} ${MONTH_NAMES[time.getMonth()]} ${time.getFullYear()}`;
+    const dateStr = `${DAY_NAMES[dayIndex]} ${pasaranOf(time)}, ${String(time.getDate()).padStart(2, '0')} ${MONTH_NAMES[time.getMonth()]} ${time.getFullYear()}`;
     const hijriDate = formatHijriDate(time);
 
     // Ring Dimensions
@@ -141,6 +145,8 @@ const AnalogClock: React.FC<AnalogClockProps> = ({ prayerProgress, locationName 
                         {prayerProgress.nextPrayerName}
                     </div>
                 )}
+
+                <AdzanOverlay isAdzan={!!adzan} isDoa={!!doa} text={adzanText} />
             </div>
         </div>
     );

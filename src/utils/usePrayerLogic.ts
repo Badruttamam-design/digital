@@ -27,6 +27,7 @@ const getPrayerDisplayName = (prayerKey: string, date: Date = new Date()) => {
 export const usePrayerLogic = (prayerTimes: PrayerTimings | null) => {
     const [nextPrayer, setNextPrayer] = useState<{ name: string; time: string; secondsUntil: number; totalSeconds: number } | null>(null);
     const [isAdzanRunning, setIsAdzanRunning] = useState(false);
+    const [isDoaRunning, setIsDoaRunning] = useState(false);
     const [notification, setNotification] = useState<{ message: string; type: 'info' | 'warning' } | null>(null);
     const [runningText, setRunningText] = useState<string | null>(null);
     const doaAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -77,6 +78,7 @@ export const usePrayerLogic = (prayerTimes: PrayerTimings | null) => {
         doaAudio.loop = true;
         doaAudio.currentTime = 0;
         doaAudio.play().catch(console.error);
+        setIsDoaRunning(true);
 
         if (doaTimeoutRef.current) {
             clearTimeout(doaTimeoutRef.current);
@@ -87,6 +89,7 @@ export const usePrayerLogic = (prayerTimes: PrayerTimings | null) => {
             doaAudio.currentTime = 0;
             doaAudio.loop = false;
             doaTimeoutRef.current = null;
+            setIsDoaRunning(false);
         }, 5 * 60 * 1000);
     }, []);
 
@@ -183,8 +186,9 @@ export const usePrayerLogic = (prayerTimes: PrayerTimings | null) => {
                 doaAudioRef.current.currentTime = 0;
                 doaAudioRef.current.loop = false;
             }
+            setIsDoaRunning(false);
         };
     }, [prayerTimes, playAzan, playDoaForFiveMinutes]);
 
-    return { nextPrayer, isAdzanRunning, notification, runningText };
+    return { nextPrayer, isAdzanRunning, isDoaRunning, notification, runningText };
 };

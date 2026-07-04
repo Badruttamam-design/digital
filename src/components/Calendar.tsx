@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import moment from 'moment-hijri';
 import { MONTH_NAMES, DAY_NAMES } from '../constants';
-import { formatHijriDate, toArabicNumerals } from '../utils/converter';
+import { formatHijriDate, formatHijriMonthYear, hijriParts, toArabicNumerals } from '../utils/converter';
 import { fetchPrayerTimesForDate } from '../services/prayerService';
 
 const Calendar: React.FC = () => {
@@ -60,7 +59,7 @@ const Calendar: React.FC = () => {
         for (let day = 1; day <= totalDays; day++) {
             const date = new Date(year, month, day);
             const isToday = new Date().toDateString() === date.toDateString();
-            const hijriDate = (moment(date).subtract(1, 'days') as any).iDate();
+            const hijriDate = hijriParts(date).day;
 
             dates.push(
                 <div
@@ -77,11 +76,13 @@ const Calendar: React.FC = () => {
         return dates;
     };
 
-    const hijriMonthYear = (moment(viewDate).subtract(1, 'days') as any).format('iMMMM iYYYY');
+    const hijriMonthYear = formatHijriMonthYear(viewDate);
 
     return (
         <>
             <button id="calendar-toggle" style={{ display: 'none' }} onClick={() => setIsOpen(!isOpen)} />
+
+            {isOpen && <div className="calendar-backdrop" onClick={() => setIsOpen(false)} />}
 
             <div id="mini-calendar" className={`mini-calendar ${!isOpen ? 'hidden' : ''}`}>
                 <div className="calendar-header">

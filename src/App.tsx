@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import moment from 'moment-hijri';
 import AnalogClock from './components/AnalogClock';
 import RamadhanMode from './components/RamadhanMode';
 import Weather from './components/Weather';
@@ -8,6 +7,7 @@ import Notification from './components/Notification';
 import { fetchLocationName, fetchPrayerTimes } from './services/prayerService';
 import type { PrayerTimings } from './services/prayerService';
 import { usePrayerLogic } from './utils/usePrayerLogic';
+import { hijriParts, hijriDaysInMonth, daysUntilRamadhan } from './utils/converter';
 
 const App: React.FC = () => {
   const [location, setLocation] = useState<string>('Mendeteksi Lokasi...');
@@ -17,12 +17,16 @@ const App: React.FC = () => {
   const [daysToEid, setDaysToEid] = useState(0);
   const [fastingDay, setFastingDay] = useState(0);
   const [totalFastingDays, setTotalFastingDays] = useState(30);
+  const [daysToRamadhan, setDaysToRamadhan] = useState(0);
   const [prevCoords, setPrevCoords] = useState<{ lat: number; lon: number } | null>(null);
   const [locationVisible, setLocationVisible] = useState(false);
   const [now, setNow] = useState<Date>(new Date());
   const basePath = import.meta.env.BASE_URL;
 
-  const { nextPrayer, isAdzanRunning, notification, runningText } = usePrayerLogic(prayerTimes);
+  const { nextPrayer, isAdzanRunning, isDoaRunning, notification, runningText } = usePrayerLogic(prayerTimes);
+
+  // Berubah nilainya saat tengah malam → dipakai sebagai pemicu refresh harian (display nyala 24 jam).
+  const dayKey = now.toDateString();
 
   // useEffect(() => {
   //   // Initialize WOW.js
@@ -38,18 +42,16 @@ const App: React.FC = () => {
   // }, [isRamadhan]);
 
   useEffect(() => {
-    // Check if Ramadhan (Hijri month 9, moment-hijri is 0-indexed so iMonth() === 8)
-    // Apply -1 day offset to the current date for the check
-    const hijriMoment = (moment().subtract(1, 'days') as any);
-    const currentHijriMonth = hijriMoment.iMonth();
-    const day = hijriMoment.iDate();
-    const hijriDaysInMonth = hijriMoment.iDaysInMonth();
+    // Cek Ramadhan (bulan Hijriah ke-9). hijriParts sudah 1-indexed & offset -1 hari.
+    const { month, day } = hijriParts(new Date());
+    const daysInMonth = hijriDaysInMonth(new Date());
 
-    setIsRamadhan(currentHijriMonth === 8);
-    setFastingDay(currentHijriMonth === 8 ? day : 0);
-    setTotalFastingDays(currentHijriMonth === 8 ? hijriDaysInMonth : 30);
-    setDaysToEid(hijriDaysInMonth - day + 1);
-  }, []);
+    setIsRamadhan(month === 9);
+    setFastingDay(month === 9 ? day : 0);
+    setTotalFastingDays(month === 9 ? daysInMonth : 30);
+    setDaysToEid(daysInMonth - day + 1);
+    setDaysToRamadhan(month === 9 ? 0 : daysUntilRamadhan(new Date()));
+  }, [dayKey]);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
@@ -70,9 +72,6 @@ const App: React.FC = () => {
 
             const locName = await fetchLocationName(latitude, longitude);
             setLocation(locName);
-
-            const timings = await fetchPrayerTimes(latitude, longitude);
-            setPrayerTimes(timings);
           }
         } catch (err) {
           console.error("App: Error in data fetching:", err);
@@ -85,6 +84,14 @@ const App: React.FC = () => {
       }
     );
   }, [prevCoords]);
+
+  // Ambil/refresh jadwal sholat saat koordinat siap atau hari berganti (agar tidak basi lewat tengah malam).
+  useEffect(() => {
+    if (!coords) return;
+    fetchPrayerTimes(coords.lat, coords.lon)
+      .then(setPrayerTimes)
+      .catch(err => console.error("App: Gagal refresh jadwal sholat:", err));
+  }, [dayKey, coords]);
 
   const handleHideLocationNotification = useCallback(() => {
     setLocationVisible(false);
@@ -181,7 +188,7 @@ const App: React.FC = () => {
                     </div>
                   </>
                 ) : (
-                  <em>Belum masuk bulan Ramadhan</em>
+                  <em>Ramadhan Kurang {daysToRamadhan} Hari Lagi</em>
                 )}
               </span>
             </div>
@@ -207,13 +214,15 @@ const App: React.FC = () => {
             >
               📅
             </button>
-            <button
-              className="zen-icon-btn"
-              onClick={() => document.getElementById('imsakiyah-toggle')?.click()}
-              title="Imsakiyah"
-            >
-              📖
-            </button>
+            {isRamadhan && (
+              <button
+                className="zen-icon-btn"
+                onClick={() => document.getElementById('imsakiyah-toggle')?.click()}
+                title="Imsakiyah"
+              >
+                📖
+              </button>
+            )}
           </nav>
         </div>
 
@@ -227,6 +236,9 @@ const App: React.FC = () => {
               nextPrayerName: nextPrayerDisplay
             } : undefined}
             locationName={undefined}
+            adzan={isAdzanRunning}
+            doa={isDoaRunning}
+            adzanText={runningText}
           />
           <audio id="azanAudio" src={`${basePath}assets/audio/adan.mp3`} preload="auto"></audio>
         </section>

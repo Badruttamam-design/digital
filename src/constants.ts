@@ -1,6 +1,6 @@
 export const CONFIG = {
     API: {
-        METHOD: 3, // Aladhan calculation method
+        METHOD: 20, // Aladhan: 20 = Kementerian Agama Republik Indonesia (Kemenag)
         LOCATION_THRESHOLD: 500, // meters untuk trigger update lokasi
     },
 };

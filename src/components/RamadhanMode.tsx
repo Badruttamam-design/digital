@@ -1,7 +1,12 @@
 ﻿import React, { useEffect, useState } from 'react';
-import moment from 'moment-hijri';
-import { toSeconds } from '../utils/converter';
+import { toSeconds, hijriParts } from '../utils/converter';
 import { CONFIG } from '../constants';
+
+// Tanggal hari ini format "DD-MM-YYYY" (untuk cocokkan baris tanggal aktif).
+const todayDDMMYYYY = () => {
+    const d = new Date();
+    return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
+};
 
 interface RamadhanModeProps {
     isActive: boolean;
@@ -75,7 +80,7 @@ const RamadhanMode: React.FC<RamadhanModeProps> = ({ isActive, prayerTimes, coor
 
     const fetchImsakiyah = async () => {
         if (!coords) return;
-        const year = (moment().subtract(1, 'days') as any).iYear();
+        const year = hijriParts(new Date()).year;
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const apiUrl = "https://api.aladhan.com/v1/hijriCalendar/" + year + "/9?latitude=" + coords.lat + "&longitude=" + coords.lon + "&method=" + CONFIG.API.METHOD + "&timezone=" + timezone + "&adjustment=-1";
 
@@ -136,7 +141,7 @@ const RamadhanMode: React.FC<RamadhanModeProps> = ({ isActive, prayerTimes, coor
                             </thead>
                             <tbody>
                                 {imsakiyahData.map((dayData, i) => (
-                                    <tr key={i} className={dayData.date.gregorian.date === moment().format('DD-MM-YYYY') ? 'current-day' : ''}>
+                                    <tr key={i} className={dayData.date.gregorian.date === todayDDMMYYYY() ? 'current-day' : ''}>
                                         <td>{dayData.date.hijri.day}</td>
                                         <td>{dayData.date.gregorian.date}</td>
                                         <td>{dayData.timings.Imsak.split(' ')[0]}</td>
