@@ -61,57 +61,31 @@ body {
     radial-gradient(at 0% 100%, hsla(339, 49%, 30%, 1) 0, transparent 50%),
     radial-gradient(at 50% 100%, hsla(158, 58%, 23%, 1) 0, transparent 50%),
     radial-gradient(at 100% 100%, hsla(253, 16%, 7%, 1) 0, transparent 50%);
-  filter: blur(80px);
-  animation: meshMove 20s ease infinite alternate;
-}
-
-@keyframes meshMove {
-  0% {
-    transform: scale(1) translate(0, 0);
-  }
-
-  100% {
-    transform: scale(1.1) translate(2%, 2%);
-  }
+  /* Tanpa filter: blur & tanpa animasi: gradien sudah lembut. Blur full-screen yang beranimasi memicu
+     rasterisasi ulang tiap frame → itulah sumber kedip. */
 }
 
 .bg-orb {
   position: absolute;
-  width: 600px;
-  height: 600px;
+  width: 720px;
+  height: 720px;
   border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.15;
+  opacity: 0.18;
   z-index: -1;
   pointer-events: none;
-  /* Render di layer GPU sendiri agar blur tidak digambar-ulang tiap frame → hilangkan flicker/kedip. */
-  will-change: transform;
-  transform: translateZ(0);
-  backface-visibility: hidden;
+  /* Glow via radial-gradient (bukan filter: blur) → tak ada rasterisasi ulang, jadi tidak kedip saat jam tick tiap detik. */
 }
 
 .orb-1 {
-  top: -10%;
-  left: -10%;
-  background: var(--primary);
-  animation: orbMove 25s ease-in-out infinite alternate;
+  top: -12%;
+  left: -12%;
+  background: radial-gradient(circle, var(--primary) 0%, transparent 72%);
 }
 
 .orb-2 {
-  bottom: -10%;
-  right: -10%;
-  background: var(--secondary);
-  animation: orbMove 30s ease-in-out infinite alternate-reverse;
-}
-
-@keyframes orbMove {
-  0% {
-    transform: translate(0, 0);
-  }
-
-  100% {
-    transform: translate(100px, 100px);
-  }
+  bottom: -12%;
+  right: -12%;
+  background: radial-gradient(circle, var(--secondary) 0%, transparent 72%);
 }
 
 body::before {
