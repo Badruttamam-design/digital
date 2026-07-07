@@ -23,23 +23,10 @@ const App: React.FC = () => {
   const [now, setNow] = useState<Date>(new Date());
   const basePath = import.meta.env.BASE_URL;
 
-  const { nextPrayer, isAdzanRunning, isDoaRunning, notification, runningText } = usePrayerLogic(prayerTimes);
+  const { nextPrayer, isAdzanRunning, isDoaRunning, isTarhimRunning, notification, runningText } = usePrayerLogic(prayerTimes);
 
   // Berubah nilainya saat tengah malam → dipakai sebagai pemicu refresh harian (display nyala 24 jam).
   const dayKey = now.toDateString();
-
-  // useEffect(() => {
-  //   // Initialize WOW.js
-  //   if ((window as any).WOW) {
-  //     new (window as any).WOW().init();
-  //   }
-
-  //   // Initialize Particles.js
-  //   if ((window as any).particlesJS) {
-  //     const config = isRamadhan ? ramadhanParticleConfig : defaultParticleConfig;
-  //     (window as any).particlesJS('particles-js', config);
-  //   }
-  // }, [isRamadhan]);
 
   useEffect(() => {
     // Cek Ramadhan (bulan Hijriah ke-9). hijriParts sudah 1-indexed & offset -1 hari.
@@ -166,7 +153,7 @@ const App: React.FC = () => {
             )}
             <div className="zen-meta-item">
               <span className="label">Keadaan</span>
-              <span className="content">{isAdzanRunning ? 'Sedang Adzan' : (nextPrayer?.name === 'Imsak' ? 'Menunggu Waktu Imsak' : 'Menunggu Adzan ' + (PRAYER_DISPLAY_NAMES[nextPrayer?.name ?? ''] || nextPrayer?.name || ''))}</span>
+              <span className="content">{isAdzanRunning ? 'Sedang Adzan' : isTarhimRunning ? 'Tarhim Menjelang Adzan' : (nextPrayer?.name === 'Imsak' ? 'Menunggu Waktu Imsak' : 'Menunggu Adzan ' + (PRAYER_DISPLAY_NAMES[nextPrayer?.name ?? ''] || nextPrayer?.name || ''))}</span>
             </div>
             <div className="zen-meta-item puasa-highlight">
               <span className="label">Puasa</span>
@@ -198,7 +185,7 @@ const App: React.FC = () => {
                 <span className="content">Kurang {daysToEid} Hari Lagi</span>
               </div>
             )}
-            {isAdzanRunning && runningText && (
+            {(isAdzanRunning || isTarhimRunning) && runningText && (
               <div className="zen-meta-item">
                 <span className="label" style={{ color: 'var(--accent)' }}>Info</span>
                 <span className="content running-text-sidebar">{runningText}</span>
@@ -273,8 +260,6 @@ const App: React.FC = () => {
       <footer className="zen-footer">
         <p>بدر التمام إبن علي</p>
       </footer>
-
-      <div id="particles-js"></div>
     </div>
   );
 };

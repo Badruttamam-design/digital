@@ -84,6 +84,10 @@ body {
   opacity: 0.15;
   z-index: -1;
   pointer-events: none;
+  /* Render di layer GPU sendiri agar blur tidak digambar-ulang tiap frame → hilangkan flicker/kedip. */
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .orb-1 {
@@ -1186,13 +1190,6 @@ body::before {
   opacity: 0.3;
   font-size: 16px;
   z-index: 5;
-}
-
-#particles-js {
-  position: fixed;
-  inset: 0;
-  z-index: -1 !important;
-  pointer-events: none;
 }
 
 /* Breathing Mode Styles */
