@@ -658,6 +658,42 @@ body::before {
   font-variant-numeric: tabular-nums;
 }
 
+/* Jam + countdown mini ditumpuk di sisi kanan tiap baris jadwal. */
+.zen-prayer-item .time-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.05;
+}
+
+.zen-prayer-item .countdown {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  margin-top: 3px;
+}
+
+/* Sholat berikutnya (aktif): countdown biru. */
+.zen-prayer-item.active .countdown {
+  color: var(--primary);
+  text-shadow: 0 0 12px var(--primary-glow);
+}
+
+/* Sholat sesudahnya: countdown pink. */
+.zen-prayer-item .countdown.next-up {
+  color: var(--secondary);
+  text-shadow: 0 0 12px var(--secondary-glow);
+}
+
+/* Sudah lewat: tanda selesai yang samar. */
+.zen-prayer-item .countdown.done {
+  color: var(--primary);
+  opacity: 0.45;
+  letter-spacing: 0;
+}
+
 /* Redesigned Zen Calendar Modal */
 .calendar-backdrop {
   position: fixed;
@@ -886,6 +922,17 @@ body::before {
 
   .zen-prayer-item .time {
     font-size: 16px;
+  }
+
+  /* Kartu vertikal tengah: countdown ikut center di bawah jam. */
+  .zen-prayer-item .time-wrap {
+    align-items: center;
+  }
+
+  .zen-prayer-item .countdown {
+    font-size: 9px;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
   }
 
   .zen-prayer-item::after {
@@ -1469,6 +1516,7 @@ body::before {
   /* Sidebar kanan (jadwal sholat) */
   .zen-prayer-item .label { font-size: 14px; letter-spacing: 6px; }
   .zen-prayer-item .time  { font-size: 30px; }
+  .zen-prayer-item .countdown { font-size: 15px; }
 }
 
 @media (min-width: 2560px) {
@@ -1492,6 +1540,7 @@ body::before {
 
   .zen-prayer-item .label { font-size: 18px; letter-spacing: 8px; }
   .zen-prayer-item .time  { font-size: 42px; }
+  .zen-prayer-item .countdown { font-size: 20px; }
 }
 
 /* =========================================================

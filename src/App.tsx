@@ -7,7 +7,17 @@ import Notification from './components/Notification';
 import { fetchLocationName, fetchPrayerTimes } from './services/prayerService';
 import type { PrayerTimings } from './services/prayerService';
 import { usePrayerLogic } from './utils/usePrayerLogic';
-import { hijriParts, hijriDaysInMonth, daysUntilRamadhan } from './utils/converter';
+import { hijriParts, hijriDaysInMonth, daysUntilRamadhan, toSeconds } from './utils/converter';
+
+// Format sisa waktu menuju sholat, selalu dengan detik: "2j 05m 03d" / "12m 30d" / "45d".
+const formatCountdown = (totalSec: number): string => {
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  if (h > 0) return `${h}j ${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}d`;
+  if (m > 0) return `${m}m ${String(s).padStart(2, '0')}d`;
+  return `${s}d`;
+};
 
 const App: React.FC = () => {
   const [location, setLocation] = useState<string>('Mendeteksi Lokasi...');
@@ -86,6 +96,8 @@ const App: React.FC = () => {
 
   // clockProps logic moved to JSX to avoid unused variable warning
   const isFriday = now.getDay() === 5;
+  // Detik berjalan hari ini — dipakai menghitung sisa waktu per baris jadwal sholat.
+  const nowSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
   const PRAYER_DISPLAY_NAMES: Record<string, string> = {
     Imsak: 'Imsak',
     Fajr: 'Subuh',
@@ -232,19 +244,59 @@ const App: React.FC = () => {
 
         {/* Zone 3: Prayer Sidebar (Right) */}
         <aside className="zen-sidebar-right">
-          {[
-            { id: 'Imsak', name: 'Imsak' },
-            { id: 'Fajr', name: 'Subuh' },
-            { id: 'Dhuhr', name: isFriday ? 'Jumat' : 'Dhuhur' },
-            { id: 'Asr', name: 'Ashar' },
-            { id: 'Maghrib', name: 'Maghrib' },
-            { id: 'Isha', name: 'Isya' }
-          ].map((p) => (
-            <div key={p.id} className={`zen-prayer-item ${nextPrayer?.name === p.id ? 'active' : ''}`}>
-              <span className="label">{p.name}</span>
-              <span className="time">{(prayerTimes as any)?.[p.id] || '--:--'}</span>
-            </div>
-          ))}
+          {(() => {
+            const rows = [
+              { id: 'Imsak', name: 'Imsak' },
+              { id: 'Fajr', name: 'Subuh' },
+              { id: 'Dhuhr', name: isFriday ? 'Jumat' : 'Dhuhur' },
+              { id: 'Asr', name: 'Ashar' },
+              { id: 'Maghrib', name: 'Maghrib' },
+              { id: 'Isha', name: 'Isya' }
+            ];
+            // Sholat berikutnya (aktif) & sholat sesudahnya (baris kedua yang di-highlight).
+            const activeIdx = rows.findIndex((p) => p.id === nextPrayer?.name);
+            const secondIdx = activeIdx >= 0 ? (activeIdx + 1) % rows.length : -1;
+
+            return rows.map((p, i) => {
+              const timeStr = (prayerTimes as any)?.[p.id] as string | undefined;
+              const isActive = i === activeIdx;
+              const isNextUp = i === secondIdx;
+              // kind: 'active' (biru berdenyut) | 'next-up' (pink berdenyut) | 'upcoming' (redup) | 'done' (✓).
+              let countdown: { text: string; kind: string } | null = null;
+              if (timeStr) {
+                if (isActive && nextPrayer) {
+                  // secondsUntil sudah menangani wraparound tengah malam (mis. Imsak besok).
+                  countdown = { text: formatCountdown(nextPrayer.secondsUntil), kind: 'active' };
+                } else if (isNextUp) {
+                  // Baris kedua: wraparound manual agar tetap hitung mundur meski jamnya "esok".
+                  let diff = toSeconds(timeStr) - nowSec;
+                  if (diff < 0) diff += 24 * 3600;
+                  countdown = { text: formatCountdown(diff), kind: 'next-up' };
+                } else {
+                  const diff = toSeconds(timeStr) - nowSec;
+                  countdown = diff > 0
+                    ? { text: formatCountdown(diff), kind: 'upcoming' }
+                    : { text: '✓', kind: 'done' };
+                }
+              }
+              return (
+                <div key={p.id} className={`zen-prayer-item ${isActive ? 'active' : ''}`}>
+                  <span className="label">{p.name}</span>
+                  <div className="time-wrap">
+                    <span className="time">{timeStr || '--:--'}</span>
+                    {countdown && (
+                      <span
+                        className={`countdown ${countdown.kind}`}
+                        aria-label={countdown.kind === 'done' ? 'Sudah lewat' : `Sisa waktu ${countdown.text}`}
+                      >
+                        {countdown.text}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            });
+          })()}
         </aside>
       </main>
 
