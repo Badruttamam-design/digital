@@ -814,6 +814,16 @@ body::before {
   margin-top: 2px;
 }
 
+/* Pasaran Jawa (Legi, Pahing, Pon, Wage, Kliwon) — di bawah tanggal Hijriah. */
+.calendar-date .date-pasaran {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: var(--accent);
+  opacity: 0.65;
+  margin-top: 1px;
+}
+
 /* Modal Utility: Force Hide Leakage */
 .mini-calendar.hidden,
 .imsakiyah-modal.hidden {

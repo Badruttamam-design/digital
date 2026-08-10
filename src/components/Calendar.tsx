@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MONTH_NAMES, DAY_NAMES } from '../constants';
-import { formatHijriDate, formatHijriMonthYear, hijriParts, toArabicNumerals } from '../utils/converter';
+import { formatHijriDate, formatHijriMonthYear, hijriParts, toArabicNumerals, pasaranOf } from '../utils/converter';
 import { fetchPrayerTimesForDate } from '../services/prayerService';
 
 const Calendar: React.FC = () => {
@@ -69,6 +69,7 @@ const Calendar: React.FC = () => {
                 >
                     <div className="date-number">{day}</div>
                     <div className="date-hijri">{toArabicNumerals(hijriDate)}</div>
+                    <div className="date-pasaran">{pasaranOf(date)}</div>
                 </div>
             );
         }
@@ -117,7 +118,7 @@ const Calendar: React.FC = () => {
                     <div className="popup-content" onClick={e => e.stopPropagation()}>
                         <button className="popup-close" onClick={() => setSelectedDate(null)}>✕</button>
                         <div id="popup-date" className="popup-date">
-                            {selectedDate ? `${DAY_NAMES[selectedDate.getDay()]}, ${selectedDate.getDate()} ${MONTH_NAMES[selectedDate.getMonth()]} ${selectedDate.getFullYear()}` : 'Memuat...'}
+                            {selectedDate ? `${DAY_NAMES[selectedDate.getDay()]} ${pasaranOf(selectedDate)}, ${selectedDate.getDate()} ${MONTH_NAMES[selectedDate.getMonth()]} ${selectedDate.getFullYear()}` : 'Memuat...'}
                         </div>
                         <div id="popup-hijri" className="popup-hijri">
                             {selectedDate ? formatHijriDate(selectedDate) : ''}
