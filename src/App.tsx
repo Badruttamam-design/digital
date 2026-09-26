@@ -1,13 +1,20 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import AnalogClock from './components/AnalogClock';
 import RamadhanMode from './components/RamadhanMode';
 import Weather from './components/Weather';
 import Calendar from './components/Calendar';
 import Notification from './components/Notification';
+import MoonPhase from './components/MoonPhase';
+import QiblaCompass from './components/QiblaCompass';
+import FinalCountdown from './components/FinalCountdown';
+import AdzanOverlay from './components/AdzanOverlay';
+import SkyLegend from './components/SkyLegend';
+import { useAsmaRotation } from './utils/useAsmaRotation';
 import { fetchLocationName, fetchPrayerTimes } from './services/prayerService';
 import type { PrayerTimings } from './services/prayerService';
 import { usePrayerLogic } from './utils/usePrayerLogic';
 import { hijriParts, hijriDaysInMonth, daysUntilRamadhan, toSeconds } from './utils/converter';
+import { skyPeriodOf, SKY_LABELS } from './utils/skyTheme';
 
 // Format sisa waktu menuju sholat, selalu dengan detik: "2j 05m 03d" / "12m 30d" / "45d".
 const formatCountdown = (totalSec: number): string => {
@@ -28,12 +35,16 @@ const App: React.FC = () => {
   const [fastingDay, setFastingDay] = useState(0);
   const [totalFastingDays, setTotalFastingDays] = useState(30);
   const [daysToRamadhan, setDaysToRamadhan] = useState(0);
-  const [prevCoords, setPrevCoords] = useState<{ lat: number; lon: number } | null>(null);
   const [locationVisible, setLocationVisible] = useState(false);
   const [now, setNow] = useState<Date>(new Date());
+  // Koordinat terakhir disimpan di ref. Dulu ini state sekaligus dependency effect
+  // geolokasi, jadi menyetelnya memicu effect itu lagi → GPS dibaca dua kali dan
+  // jadwal sholat ikut diambil dua kali saat boot.
+  const prevCoordsRef = useRef<{ lat: number; lon: number } | null>(null);
   const basePath = import.meta.env.BASE_URL;
 
-  const { nextPrayer, isAdzanRunning, isDoaRunning, isTarhimRunning, notification, runningText } = usePrayerLogic(prayerTimes);
+  const asma = useAsmaRotation();
+  const { nextPrayer, isAdzanRunning, isDoaRunning, isTarhimRunning, runningText } = usePrayerLogic(prayerTimes);
 
   // Berubah nilainya saat tengah malam → dipakai sebagai pemicu refresh harian (display nyala 24 jam).
   const dayKey = now.toDateString();
@@ -63,8 +74,9 @@ const App: React.FC = () => {
           setCoords({ lat: latitude, lon: longitude });
 
           // Check if location changed significantly
-          if (!prevCoords || Math.abs(prevCoords.lat - latitude) > 0.01 || Math.abs(prevCoords.lon - longitude) > 0.01) {
-            setPrevCoords({ lat: latitude, lon: longitude });
+          const prev = prevCoordsRef.current;
+          if (!prev || Math.abs(prev.lat - latitude) > 0.01 || Math.abs(prev.lon - longitude) > 0.01) {
+            prevCoordsRef.current = { lat: latitude, lon: longitude };
             setLocationVisible(true);
 
             const locName = await fetchLocationName(latitude, longitude);
@@ -80,7 +92,7 @@ const App: React.FC = () => {
         setLocation("Lokasi tidak dapat diakses");
       }
     );
-  }, [prevCoords]);
+  }, []);
 
   // Ambil/refresh jadwal sholat saat koordinat siap atau hari berganti (agar tidak basi lewat tengah malam).
   useEffect(() => {
@@ -95,6 +107,8 @@ const App: React.FC = () => {
   }, []);
 
   // clockProps logic moved to JSX to avoid unused variable warning
+  // Periode langit → mengganti palet warna seluruh halaman (lihat [data-sky] di index.css).
+  const sky = skyPeriodOf(prayerTimes, now);
   const isFriday = now.getDay() === 5;
   // Detik berjalan hari ini — dipakai menghitung sisa waktu per baris jadwal sholat.
   const nowSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
@@ -140,11 +154,13 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className={`app-zen-wrapper ${isRamadhan ? 'ramadhan-mode' : ''}`}>
+    <div className={`app-zen-wrapper ${isRamadhan ? 'ramadhan-mode' : ''}`} data-sky={sky}>
       {/* Background elements */}
       <div className="bg-mesh"></div>
       <div className="bg-orb orb-1"></div>
       <div className="bg-orb orb-2"></div>
+
+
 
       {/* Dedicated Layout Grid Container */}
       <main className="app-zen-grid">
@@ -163,10 +179,19 @@ const App: React.FC = () => {
                 </div>
               </div>
             )}
-            <div className="zen-meta-item">
+            <div className="zen-meta-item zen-sky-item">
+              <span className="label">Langit</span>
+              <div className="content zen-sky-row">
+                <MoonPhase date={now} />
+                {coords && <QiblaCompass lat={coords.lat} lon={coords.lon} />}
+              </div>
+              <span className="zen-sky-caption">Periode {SKY_LABELS[sky]} · arah kiblat dari utara sejati</span>
+              <SkyLegend current={sky} />
+            </div>
+            {/* <div className="zen-meta-item zen-state-item">
               <span className="label">Keadaan</span>
               <span className="content">{isAdzanRunning ? 'Sedang Adzan' : isTarhimRunning ? 'Tarhim Menjelang Adzan' : (nextPrayer?.name === 'Imsak' ? 'Menunggu Waktu Imsak' : 'Menunggu Adzan ' + (PRAYER_DISPLAY_NAMES[nextPrayer?.name ?? ''] || nextPrayer?.name || ''))}</span>
-            </div>
+            </div> */}
             <div className="zen-meta-item puasa-highlight">
               <span className="label">Puasa</span>
               <span className="content puasa-content">
@@ -235,9 +260,10 @@ const App: React.FC = () => {
               nextPrayerName: nextPrayerDisplay
             } : undefined}
             locationName={undefined}
-            adzan={isAdzanRunning}
-            doa={isDoaRunning}
-            adzanText={runningText}
+            prayerTimes={prayerTimes}
+            nextPrayerKey={nextPrayer?.name}
+            asmaText={asma.name.ar}
+            asmaKey={asma.index}
           />
           <audio id="azanAudio" src={`${basePath}assets/audio/adan.mp3`} preload="auto"></audio>
         </section>
@@ -279,6 +305,15 @@ const App: React.FC = () => {
                     : { text: '✓', kind: 'done' };
                 }
               }
+              // Bilah progres: baris aktif terisi seiring berjalannya selang waktu
+              // dari sholat sebelumnya; yang sudah lewat penuh, yang belum kosong.
+              let rowFill = 0;
+              if (countdown?.kind === 'done') {
+                rowFill = 1;
+              } else if (countdown?.kind === 'active' && nextPrayer && nextPrayer.totalSeconds > 0) {
+                rowFill = 1 - nextPrayer.secondsUntil / nextPrayer.totalSeconds;
+              }
+
               return (
                 <div key={p.id} className={`zen-prayer-item ${isActive ? 'active' : ''}`}>
                   <span className="label">{p.name}</span>
@@ -293,6 +328,11 @@ const App: React.FC = () => {
                       </span>
                     )}
                   </div>
+                  {countdown && (
+                    <span className={`row-progress ${countdown.kind}`} aria-hidden="true">
+                      <i style={{ width: `${Math.min(Math.max(rowFill, 0), 1) * 100}%` }} />
+                    </span>
+                  )}
                 </div>
               );
             });
@@ -301,8 +341,21 @@ const App: React.FC = () => {
       </main>
 
       {/* Overlays & Global Elements (Fixed/Absolute) */}
+      <AdzanOverlay
+        isAdzan={isAdzanRunning}
+        isDoa={isDoaRunning}
+        text={runningText}
+        clock={`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`}
+      />
+
+      {nextPrayer && (
+        <FinalCountdown
+          secondsLeft={nextPrayer.secondsUntil}
+          suppressed={isAdzanRunning}
+        />
+      )}
+
       <div className="notification-area">
-        <Notification message={notification?.message || ""} type="info" visible={!!notification} />
         <Notification message="📍 Sinkronisasi..." type="location" visible={locationVisible} onHide={handleHideLocationNotification} />
       </div>
 
@@ -310,7 +363,7 @@ const App: React.FC = () => {
       <RamadhanMode isActive={isRamadhan} prayerTimes={prayerTimes} coords={coords} />
 
       <footer className="zen-footer">
-        <p>بدر التمام إبن علي</p>
+        <p>بدر التمام 💞 عملية الصالحة</p>
       </footer>
     </div>
   );

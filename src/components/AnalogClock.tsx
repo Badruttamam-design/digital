@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { formatHijriDate, pasaranOf } from '../utils/converter';
 import { DAY_NAMES, MONTH_NAMES } from '../constants';
-import AdzanOverlay from './AdzanOverlay';
+import DialMarkers from './DialMarkers';
+import DayWheel from './DayWheel';
+import RollingDigits from './RollingDigits';
+import DialCalligraphy from './DialCalligraphy';
 
 interface AnalogClockProps {
     prayerProgress?: {
@@ -11,12 +14,13 @@ interface AnalogClockProps {
         nextPrayerName: string;
     };
     locationName?: string;
-    adzan?: boolean;
-    doa?: boolean;
-    adzanText?: string | null;
+    prayerTimes?: Record<string, string> | null;
+    nextPrayerKey?: string;
+    asmaText?: string;
+    asmaKey?: number;
 }
 
-const AnalogClock: React.FC<AnalogClockProps> = ({ prayerProgress, locationName, adzan, doa, adzanText }) => {
+const AnalogClock: React.FC<AnalogClockProps> = ({ prayerProgress, locationName, prayerTimes, nextPrayerKey, asmaText, asmaKey }) => {
     const [time, setTime] = useState(new Date());
 
     useEffect(() => {
@@ -97,6 +101,16 @@ const AnalogClock: React.FC<AnalogClockProps> = ({ prayerProgress, locationName,
                     />
                 </svg>
 
+                {/* Roda hari 24 jam, melingkari piringan di sisi luar. */}
+                <DayWheel prayerTimes={prayerTimes ?? null} nowSec={totalSeconds} />
+
+                {asmaText && <DialCalligraphy text={asmaText} cycleKey={asmaKey ?? 0} />}
+
+                {/* Ornamen girih: pola geometri Islam yang berputar sangat lambat di belakang jarum. */}
+                <div className="dial-girih" aria-hidden="true" />
+
+                <DialMarkers prayerTimes={prayerTimes ?? null} nextPrayerKey={nextPrayerKey} nowSec={totalSeconds} />
+
                 <div className="tick-marks">
                     {[...Array(60)].map((_, i) => (
                         <div
@@ -131,8 +145,10 @@ const AnalogClock: React.FC<AnalogClockProps> = ({ prayerProgress, locationName,
 
                 {/* Digital HUD */}
                 <div id="digital-clock" className="digital-clock">
-                    {String(hours).padStart(2, '0')}:{String(minutes).padStart(2, '0')}
-                    <span className="seconds">{String(seconds).padStart(2, '0')}</span>
+                    <RollingDigits value={`${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`} />
+                    <span className="seconds">
+                        <RollingDigits value={String(seconds).padStart(2, '0')} />
+                    </span>
                 </div>
 
                 <div id="date" className="date">{dateStr}</div>
@@ -145,8 +161,6 @@ const AnalogClock: React.FC<AnalogClockProps> = ({ prayerProgress, locationName,
                         {prayerProgress.nextPrayerName}
                     </div>
                 )}
-
-                <AdzanOverlay isAdzan={!!adzan} isDoa={!!doa} text={adzanText} />
             </div>
         </div>
     );

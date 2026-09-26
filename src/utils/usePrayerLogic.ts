@@ -36,7 +36,6 @@ export const usePrayerLogic = (prayerTimes: PrayerTimings | null) => {
     const [isAdzanRunning, setIsAdzanRunning] = useState(false);
     const [isDoaRunning, setIsDoaRunning] = useState(false);
     const [isTarhimRunning, setIsTarhimRunning] = useState(false);
-    const [notification, setNotification] = useState<{ message: string; type: 'info' | 'warning' } | null>(null);
     const [runningText, setRunningText] = useState<string | null>(null);
     const doaAudioRef = useRef<HTMLAudioElement | null>(null);
     const doaTimeoutRef = useRef<number | null>(null);
@@ -44,16 +43,26 @@ export const usePrayerLogic = (prayerTimes: PrayerTimings | null) => {
     const tarhimAudioRef = useRef<HTMLAudioElement | null>(null);
     const tarhimDurationRef = useRef<number>(TARHIM_FALLBACK_SECONDS);
     const tarhimPlayedRef = useRef<string | null>(null);
+    // Penjaga "adzan sedang berjalan" disimpan di ref, bukan state, supaya playAzan
+    // punya identitas tetap. Sebelumnya playAzan bergantung pada isAdzanRunning →
+    // tiap adzan mulai/selesai, effect detik ikut dipasang ulang dan cleanup-nya
+    // mematikan doa yang sedang berjalan.
+    const adzanRunningRef = useRef(false);
+
+    const setAdzanRunning = useCallback((on: boolean) => {
+        adzanRunningRef.current = on;
+        setIsAdzanRunning(on);
+    }, []);
 
     const playAzan = useCallback((prayerName: string) => {
-        if (isAdzanRunning) return;
+        if (adzanRunningRef.current) return;
 
-        setIsAdzanRunning(true);
+        setAdzanRunning(true);
 
         if (prayerName === 'Imsak') {
             setRunningText('Sekarang Sudah Masuk Waktu Imsak, Segera Bersiap Untuk Puasa!');
             setTimeout(() => {
-                setIsAdzanRunning(false);
+                setAdzanRunning(false);
                 setRunningText(null);
             }, 60000);
         } else {
@@ -67,17 +76,17 @@ export const usePrayerLogic = (prayerTimes: PrayerTimings | null) => {
                     : `${basePath}assets/audio/adan.mp3`;
                 audio.play().catch(console.error);
                 audio.onended = () => {
-                    setIsAdzanRunning(false);
+                    setAdzanRunning(false);
                     setRunningText(null);
                 };
             }
             // Fallback 4 mins
             setTimeout(() => {
-                setIsAdzanRunning(false);
+                setAdzanRunning(false);
                 setRunningText(null);
             }, 240000);
         }
-    }, [isAdzanRunning]);
+    }, [setAdzanRunning]);
 
     const playDoaForFiveMinutes = useCallback(() => {
         if (!doaAudioRef.current) {
@@ -223,43 +232,30 @@ export const usePrayerLogic = (prayerTimes: PrayerTimings | null) => {
                 playAzan(currentKey);
             }
 
-            // Handle notifications < 3 mins
-            if (nextKey) {
-                const nextTimeInSeconds = toSeconds(prayerTimes[nextKey]);
-                let secondsUntilNext = nextTimeInSeconds - currentTimeInSeconds;
-                if (secondsUntilNext < 0) secondsUntilNext += 24 * 3600;
-
-                if (secondsUntilNext < 180 && secondsUntilNext > 0) {
-                    const m = Math.floor(secondsUntilNext / 60);
-                    const s = secondsUntilNext % 60;
-                    setNotification({
-                        message: `⏰ ${getPrayerDisplayName(nextKey)} dalam ${m}:${String(s).padStart(2, '0')}`,
-                        type: 'warning'
-                    });
-                } else {
-                    setNotification(null);
-                }
-            }
         };
 
         const interval = setInterval(tick, 1000);
         tick();
-        return () => {
-            clearInterval(interval);
-
-            if (doaTimeoutRef.current) {
-                clearTimeout(doaTimeoutRef.current);
-                doaTimeoutRef.current = null;
-            }
-
-            if (doaAudioRef.current) {
-                doaAudioRef.current.pause();
-                doaAudioRef.current.currentTime = 0;
-                doaAudioRef.current.loop = false;
-            }
-            setIsDoaRunning(false);
-        };
+        // Cleanup hanya menghentikan pencacah. Audio doa TIDAK dimatikan di sini:
+        // effect ini dipasang ulang tiap jadwal sholat diambil ulang, dan dulu
+        // cleanup-nya langsung membunuh doa yang baru saja mulai — sementara
+        // doaLastPlayedDateRef sudah terisi, jadi doa tak pernah diputar lagi.
+        // Penghentian audio ditangani effect pelepasan terpisah di bawah.
+        return () => clearInterval(interval);
     }, [prayerTimes, playAzan, playDoaForFiveMinutes, playTarhim, stopTarhim]);
 
-    return { nextPrayer, isAdzanRunning, isDoaRunning, isTarhimRunning, notification, runningText };
+    // Hanya berjalan saat komponen dilepas: satu-satunya tempat audio doa dihentikan.
+    useEffect(() => () => {
+        if (doaTimeoutRef.current) {
+            clearTimeout(doaTimeoutRef.current);
+            doaTimeoutRef.current = null;
+        }
+        if (doaAudioRef.current) {
+            doaAudioRef.current.pause();
+            doaAudioRef.current.currentTime = 0;
+            doaAudioRef.current.loop = false;
+        }
+    }, []);
+
+    return { nextPrayer, isAdzanRunning, isDoaRunning, isTarhimRunning, runningText };
 };
