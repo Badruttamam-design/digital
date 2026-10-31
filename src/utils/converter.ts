@@ -95,3 +95,14 @@ export const pasaranOf = (date: Date): string => {
     const idx = (((1 + diff) % 5) + 5) % 5;
     return PASARAN[idx];
 };
+
+// Neptu hari (index = Date.getDay(), Ahad dulu) & neptu pasaran.
+const NEPTU_HARI = [5, 4, 3, 7, 8, 6, 9];
+const NEPTU_PASARAN: Record<(typeof PASARAN)[number], number> = { Legi: 5, Pahing: 9, Pon: 7, Wage: 4, Kliwon: 8 };
+
+// Neptu weton = neptu hari + neptu pasaran, contoh Sabtu Pahing = 9 + 9 = 18.
+export const neptuOf = (date: Date): { hari: number; pasaran: number; total: number } => {
+    const hari = NEPTU_HARI[date.getDay()];
+    const pasaran = NEPTU_PASARAN[pasaranOf(date) as (typeof PASARAN)[number]];
+    return { hari, pasaran, total: hari + pasaran };
+};

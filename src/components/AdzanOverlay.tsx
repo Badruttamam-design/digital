@@ -1,4 +1,5 @@
 import React from 'react';
+import AdzanEmblem from './AdzanEmblem';
 
 interface AdzanOverlayProps {
     isAdzan: boolean;
@@ -27,7 +28,7 @@ const AdzanOverlay: React.FC<AdzanOverlayProps> = ({ isAdzan, isDoa, text, clock
                 <span className="adzan-wave" />
                 <span className="adzan-wave" />
                 <span className="adzan-wave" />
-                <div className="adzan-emblem">{doa ? '🤲' : '🕌'}</div>
+                <AdzanEmblem doa={doa} />
             </div>
 
             <div className="adzan-arabic">{doa ? 'دُعَاء' : 'حَيَّ عَلَى الصَّلَاة'}</div>

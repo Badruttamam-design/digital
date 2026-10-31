@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MONTH_NAMES, DAY_NAMES } from '../constants';
-import { formatHijriDate, formatHijriMonthYear, hijriParts, toArabicNumerals, pasaranOf } from '../utils/converter';
+import { formatHijriDate, formatHijriMonthYear, hijriParts, toArabicNumerals, pasaranOf, neptuOf } from '../utils/converter';
 import { fetchPrayerTimesForDate } from '../services/prayerService';
 
 const Calendar: React.FC = () => {
@@ -123,6 +123,15 @@ const Calendar: React.FC = () => {
                         <div id="popup-hijri" className="popup-hijri">
                             {selectedDate ? formatHijriDate(selectedDate) : ''}
                         </div>
+                        {selectedDate && (() => {
+                            const neptu = neptuOf(selectedDate);
+                            return (
+                                <div className="popup-weton">
+                                    Weton {DAY_NAMES[selectedDate.getDay()]} {pasaranOf(selectedDate)} · Neptu <b>{neptu.total}</b>
+                                    <span className="popup-weton-detail"> ({neptu.hari} + {neptu.pasaran})</span>
+                                </div>
+                            );
+                        })()}
 
                         <div className="prayer-grid">
                             {loadingPopup ? (

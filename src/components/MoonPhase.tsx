@@ -9,6 +9,8 @@ const MoonPhase: React.FC<{ date?: Date }> = ({ date = new Date() }) => {
     const { day } = hijriParts(date);
     const phase = moonPhaseFromHijriDay(day);
     const litPath = moonLitPath(phase, R);
+    // Fraksi piringan yang tersinari (0 = bulan baru, 1 = purnama) → kuat glow.
+    const illumination = (1 - Math.cos(2 * Math.PI * phase)) / 2;
 
     return (
         <div className="moon-widget" title={`${moonPhaseLabel(day)} — ${day} hari`}>
@@ -19,7 +21,16 @@ const MoonPhase: React.FC<{ date?: Date }> = ({ date = new Date() }) => {
                         <stop offset="60%" stopColor="#f5e6c8" />
                         <stop offset="100%" stopColor="#cdb68b" />
                     </radialGradient>
+                    <radialGradient id="moonGlow">
+                        <stop offset="45%" stopColor="#fff3d6" stopOpacity="0.55" />
+                        <stop offset="70%" stopColor="#f5e6c8" stopOpacity="0.18" />
+                        <stop offset="100%" stopColor="#f5e6c8" stopOpacity="0" />
+                    </radialGradient>
                 </defs>
+                {/* Halo: terangnya mengikuti fase, ditambah "napas" pelan via CSS. */}
+                <g style={{ opacity: 0.08 + 0.92 * illumination }}>
+                    <circle r={R * 1.9} fill="url(#moonGlow)" className="moon-glow" />
+                </g>
                 {/* Piringan gelap: sisi bulan yang tidak kena matahari */}
                 <circle r={R} className="moon-dark" />
                 {/* Sisi terang */}

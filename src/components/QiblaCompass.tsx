@@ -45,10 +45,13 @@ const QiblaCompass: React.FC<QiblaCompassProps> = ({ lat, lon }) => {
                 ))}
                 {/* Jarum kiblat */}
                 <g transform={`rotate(${bearing})`} className="qibla-needle">
-                    <line x1="0" y1="8" x2="0" y2="-34" />
-                    <polygon points="0,-42 -5,-30 5,-30" />
-                    {/* Penanda Ka'bah di ujung jarum */}
-                    <rect x="-3.4" y="-48" width="6.8" height="6" rx="1" className="qibla-kaaba" />
+                    {/* Grup dalam berayun teredam lalu diam di arah kiblat saat pertama dimuat. */}
+                    <g className="qibla-swing">
+                        <line x1="0" y1="8" x2="0" y2="-34" />
+                        <polygon points="0,-42 -5,-30 5,-30" />
+                        {/* Penanda Ka'bah di ujung jarum */}
+                        <rect x="-3.4" y="-48" width="6.8" height="6" rx="1" className="qibla-kaaba" />
+                    </g>
                 </g>
                 <circle r="3" className="qibla-hub" />
             </svg>

@@ -9,11 +9,14 @@ import QiblaCompass from './components/QiblaCompass';
 import FinalCountdown from './components/FinalCountdown';
 import AdzanOverlay from './components/AdzanOverlay';
 import SkyLegend from './components/SkyLegend';
+import NextPrayerFocus, { APPROACH_WINDOW_SEC } from './components/NextPrayerFocus';
+import MetaCarousel from './components/MetaCarousel';
 import { useAsmaRotation } from './utils/useAsmaRotation';
 import { fetchLocationName, fetchPrayerTimes } from './services/prayerService';
 import type { PrayerTimings } from './services/prayerService';
 import { usePrayerLogic } from './utils/usePrayerLogic';
-import { hijriParts, hijriDaysInMonth, daysUntilRamadhan, toSeconds } from './utils/converter';
+import { hijriParts, hijriDaysInMonth, daysUntilRamadhan, toSeconds, formatHijriDate, pasaranOf, neptuOf } from './utils/converter';
+import { DAY_NAMES, MONTH_NAMES } from './constants';
 import { skyPeriodOf, SKY_LABELS } from './utils/skyTheme';
 
 // Format sisa waktu menuju sholat, selalu dengan detik: "2j 05m 03d" / "12m 30d" / "45d".
@@ -125,6 +128,14 @@ const App: React.FC = () => {
   const nextPrayerDisplay = nextPrayer
     ? `${PRAYER_DISPLAY_NAMES[nextPrayer.name] || nextPrayer.name} - ${Math.floor(nextPrayer.secondsUntil / 3600).toString().padStart(2, '0')}:${Math.floor((nextPrayer.secondsUntil % 3600) / 60).toString().padStart(2, '0')}:${(nextPrayer.secondsUntil % 60).toString().padStart(2, '0')}`
     : '';
+  // Mode "Jelang Sholat": 10 menit terakhir sebelum adzan (Imsak hanya saat Ramadhan).
+  const isApproach = !!nextPrayer
+    && !isAdzanRunning
+    && nextPrayer.secondsUntil > 0
+    && nextPrayer.secondsUntil <= APPROACH_WINDOW_SEC
+    && (nextPrayer.name !== 'Imsak' || isRamadhan);
+  const neptu = neptuOf(now);
+
   const fastingProgress = Math.min(Math.max((fastingDay / totalFastingDays) * 100, 0), 100);
   const fastingPercent = Math.round(fastingProgress);
 
@@ -154,7 +165,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className={`app-zen-wrapper ${isRamadhan ? 'ramadhan-mode' : ''}`} data-sky={sky}>
+    <div className={`app-zen-wrapper ${isRamadhan ? 'ramadhan-mode' : ''} ${isApproach ? 'approach-mode' : ''}`} data-sky={sky}>
       {/* Background elements */}
       <div className="bg-mesh"></div>
       <div className="bg-orb orb-1"></div>
@@ -166,7 +177,7 @@ const App: React.FC = () => {
       <main className="app-zen-grid">
         {/* Zone 1: Meta-Info & Controls (Left) */}
         <div className="zen-sidebar-left">
-          <header className="zen-meta-top">
+          <MetaCarousel>
             <div className="zen-meta-item">
               <span className="label">Lokasi</span>
               <span className="content">{location}</span>
@@ -228,11 +239,25 @@ const App: React.FC = () => {
                 <span className="content running-text-sidebar">{runningText}</span>
               </div>
             )}
-          </header>
+            {/* Kartu kalender: hanya tampil di HP/portrait (di layar lebar ada tombol dock). */}
+            <button
+              type="button"
+              className="zen-meta-item zen-cal-card"
+              onClick={() => document.getElementById('calendar-toggle')?.click()}
+            >
+              <span className="label">Kalender</span>
+              <span className="content">
+                <strong>{DAY_NAMES[now.getDay()]} {pasaranOf(now)}</strong>
+                <span>{now.getDate()} {MONTH_NAMES[now.getMonth()]} {now.getFullYear()}</span>
+                <span className="cal-card-hijri">{formatHijriDate(now)}</span>
+                <small>Neptu {neptu.total} · ketuk untuk buka kalender ›</small>
+              </span>
+            </button>
+          </MetaCarousel>
 
           <nav className="zen-dock">
             <button
-              className="zen-icon-btn"
+              className="zen-icon-btn dock-calendar"
               onClick={() => document.getElementById('calendar-toggle')?.click()}
               title="Kalender"
             >
@@ -267,6 +292,18 @@ const App: React.FC = () => {
           />
           <audio id="azanAudio" src={`${basePath}assets/audio/adan.mp3`} preload="auto"></audio>
         </section>
+
+        {nextPrayer && prayerTimes && (
+          <NextPrayerFocus
+            prayerKey={nextPrayer.name}
+            displayName={PRAYER_DISPLAY_NAMES[nextPrayer.name] || nextPrayer.name}
+            time={((prayerTimes as any)[nextPrayer.name] as string || '').split(' ')[0]}
+            secondsUntil={nextPrayer.secondsUntil}
+            totalSeconds={nextPrayer.totalSeconds}
+            isFriday={isFriday}
+            approach={isApproach}
+          />
+        )}
 
         {/* Zone 3: Prayer Sidebar (Right) */}
         <aside className="zen-sidebar-right">

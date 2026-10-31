@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { ASMAUL_HUSNA } from '../data/asmaulHusna';
 import type { AsmaName } from '../data/asmaulHusna';
 
-// Berganti tiap 5 detik → satu putaran penuh 99 nama ≈ 8 menit 15 detik.
-const ROTATE_MS = 5_000;
+// Berganti tiap 3 detik → satu putaran penuh 99 nama ≈ 4 menit 57 detik.
+const ROTATE_MS = 3_000;
 
 export interface AsmaRotation {
     index: number;

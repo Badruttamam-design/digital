@@ -1151,6 +1151,10 @@ body::before {
 
 .popup-content {
   width: 420px;
+  /* Layar pendek (HP landscape): popup bisa digulir, tidak terpotong. */
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  box-sizing: border-box;
   background: rgba(15, 23, 42, 0.85);
   backdrop-filter: blur(50px);
   border: 1px solid var(--glass-border);
@@ -1204,6 +1208,49 @@ body::before {
   font-size: 22px;
   font-weight: 200;
   color: var(--text-main);
+}
+
+/* Weton & neptu Jawa di popup tanggal. */
+.popup-weton {
+  margin-top: 6px;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  color: var(--text-main);
+  opacity: 0.7;
+}
+
+.popup-weton b {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.popup-weton-detail {
+  opacity: 0.6;
+}
+
+/* Indeks UV & kualitas udara di bawah info cuaca. */
+.weather-extra {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 4px;
+  /* Pakai em agar ikut membesar bersama .zen-meta-item .content di layar TV. */
+  font-size: 0.78em;
+  opacity: 0.85;
+}
+
+.weather-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  white-space: nowrap;
+}
+
+.weather-dot {
+  width: 0.6em;
+  height: 0.6em;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 /* Notification Overlay Fix */
@@ -1695,24 +1742,18 @@ body::before {
 
 .adzan-emblem {
   position: relative;
-  font-size: calc(var(--stage) * 0.42);
-  line-height: 1;
-  filter: drop-shadow(0 0 20px var(--ov-glow));
-  animation: adzanPulse 2.4s ease-in-out infinite;
+  width: calc(var(--stage) * 0.68);
+  height: calc(var(--stage) * 0.68);
+  color: var(--ov);
+  overflow: visible;
+  /* Melayang naik-turun pelan; dulu emoji membesar-mengecil dengan
+     drop-shadow beranimasi (filter animasi = sumber kedip). */
+  animation: adzanFloat 5s ease-in-out infinite;
 }
 
-@keyframes adzanPulse {
-
-  0%,
-  100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 16px var(--ov-glow));
-  }
-
-  50% {
-    transform: scale(1.09);
-    filter: drop-shadow(0 0 40px var(--ov-glow));
-  }
+@keyframes adzanFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2.5%); }
 }
 
 .adzan-arabic {
@@ -1754,10 +1795,14 @@ body::before {
   .adzan-ring,
   .adzan-wave,
   .adzan-emblem,
+  .adzan-emblem *,
   .adzan-arabic,
   .adzan-text {
-    animation: none;
+    animation: none !important;
   }
+
+  /* Tanpa animasi gambar garis, garis harus langsung terlihat penuh. */
+  .ae-line path { stroke-dashoffset: 0; }
 }
 
 /* ============================================================
@@ -2372,10 +2417,10 @@ body::before {
   max-width: 100%;
   color: var(--text-main);
   opacity: 0.08;
-  /* 1,1s, bukan 3,5s: dengan pergantian tiap 5 detik, fade 3,5 detik membuat
-     nama baru selesai muncul lalu langsung berganti lagi. Sekarang ±4 detik
+  /* 0,8s: dengan pergantian tiap 3 detik, fade yang lebih lama membuat nama
+     baru selesai muncul lalu langsung berganti lagi. Sekarang ±2 detik
      tampil tenang. */
-  animation: asmaGhostIn 1.1s ease both;
+  animation: asmaGhostIn 0.8s ease both;
 }
 
 @keyframes asmaGhostIn {
@@ -2895,4 +2940,854 @@ body::before {
   .sky-legend-note {
     display: none;
   }
+}
+
+/* HP landscape (layar pendek): sidebar lebih ramping & bisa digulir,
+   isi jam diskalakan dari ukuran jam agar teks tidak saling tumpuk.
+   Ditaruh paling akhir supaya menang atas aturan dasar di atas. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .app-zen-grid {
+    grid-template-columns: 200px 1fr 200px;
+    padding: 0 12px;
+  }
+
+  .analog-clock {
+    --clock-size: min(84vh, 44vw);
+  }
+
+  .digital-clock { font-size: calc(var(--clock-size) * 0.1); }
+  .digital-clock .seconds { font-size: calc(var(--clock-size) * 0.035); }
+  .date,
+  .islamic { font-size: calc(var(--clock-size) * 0.034); letter-spacing: 1px; }
+
+  .zen-sidebar-left,
+  .zen-sidebar-right {
+    max-height: 100dvh;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .zen-sidebar-left { padding: 12px 8px; }
+  .zen-meta-top { gap: 10px; }
+  .zen-meta-item .label { font-size: 9px; letter-spacing: 2px; }
+  .zen-meta-item .content { font-size: 12px; }
+  .zen-sky-caption,
+  .sky-legend-note { display: none; }
+  /* Bulan & kompas kiblat tidak muat sebaris di sidebar 200px → turun baris. */
+  .zen-sky-item .content.zen-sky-row { flex-wrap: wrap; gap: 8px 12px; }
+
+  .zen-sidebar-right { gap: 0; padding: 8px 12px; }
+  .zen-prayer-item { padding: 6px 0; }
+  .zen-prayer-item .label { letter-spacing: 3px; }
+
+  .zen-footer { display: none; }
+
+  .popup-content { padding: 20px 24px; border-radius: 24px; }
+  .prayer-grid { margin-top: 12px; gap: 4px; }
+}
+
+/* Kalender responsif. `1fr` biasa tidak bisa menyusut di bawah lebar isi sel
+   (mis. "Kliwon"), jadi 7 kolom meluber di HP → pakai minmax(0, 1fr).
+   Tinggi modal dibatasi layar supaya tidak terpotong di HP landscape. */
+.mini-calendar {
+  box-sizing: border-box;
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.calendar-weekdays,
+.calendar-dates {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.calendar-date {
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  .calendar-header { margin-bottom: 16px; }
+  .calendar-title #calendar-month-year { font-size: 18px; letter-spacing: 2px; }
+  .calendar-weekdays { letter-spacing: 0.5px; margin-bottom: 8px; }
+  .calendar-dates { gap: 4px; }
+  /* Sel persegi terlalu pendek untuk 3 baris teks di lebar ~36px → tinggi ikut isi. */
+  .calendar-date { aspect-ratio: auto; padding: 6px 0; border-radius: 10px; }
+  .calendar-date .date-number { font-size: 14px; }
+  .calendar-date .date-pasaran { font-size: 7.5px; letter-spacing: 0; }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .mini-calendar {
+    max-width: 560px;
+    padding: 12px 24px !important;
+  }
+
+  .calendar-header { margin-bottom: 6px; }
+  .calendar-title #calendar-month-year { font-size: 16px; }
+  .calendar-title .hijri-month { margin-top: 2px; }
+  .calendar-weekdays { margin-bottom: 4px; }
+  .calendar-dates { gap: 2px 6px; }
+  .calendar-date { aspect-ratio: auto; padding: 2px 0; }
+  .calendar-date .date-number { font-size: 13px; }
+  .mini-calendar > div:last-child { margin-top: 8px !important; }
+}
+
+@media (min-width: 1600px) {
+  .mini-calendar { max-width: 640px; padding: 48px; }
+  .calendar-title #calendar-month-year { font-size: 28px; }
+  .calendar-title .hijri-month { font-size: 16px; }
+  .calendar-weekdays { font-size: 12px; }
+  .calendar-date .date-number { font-size: 22px; }
+  .calendar-date .date-hijri { font-size: 12px; }
+  .calendar-date .date-pasaran { font-size: 11px; }
+}
+
+@media (min-width: 2560px) {
+  .mini-calendar { max-width: 900px; padding: 64px; border-radius: 56px; }
+  .calendar-title #calendar-month-year { font-size: 40px; }
+  .calendar-title .hijri-month { font-size: 22px; }
+  .calendar-weekdays { font-size: 16px; }
+  .calendar-dates { gap: 18px; }
+  .calendar-date .date-number { font-size: 32px; }
+  .calendar-date .date-hijri { font-size: 16px; }
+  .calendar-date .date-pasaran { font-size: 15px; }
+}
+
+/* Cuaca: baris utama dipecah per bagian supaya bisa turun baris di kartu sempit. */
+.weather-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.35em;
+}
+
+@media (max-width: 480px) {
+  /* Kartu cuaca di HP hanya ~130px: tanpa pemisah "|", suhu turun baris
+     kalau tak muat, dan label UV/udara boleh dibungkus. */
+  .weather-main { justify-content: center; text-align: center; }
+  .weather-sep { display: none; }
+
+  .weather-extra {
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  /* Inline (bukan flex) supaya titik warna ikut mengalir dengan teks saat dibungkus. */
+  .weather-chip {
+    display: block;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .weather-dot {
+    display: inline-block;
+    margin-right: 0.4em;
+    vertical-align: 0.05em;
+  }
+}
+
+/* ============================================================
+   Animasi halus: ikon cuaca, glow bulan, ayunan jarum kiblat,
+   denyut AQI. Hanya transform & opacity (tanpa filter/blur animasi)
+   agar ringan untuk display yang menyala 24 jam.
+   ============================================================ */
+
+/* --- Ikon cuaca SVG --- */
+.weather-cond {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+}
+
+.weather-icon {
+  width: 1.45em;
+  height: 1.45em;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.wi-sun circle { fill: #fbbf24; }
+.wi-rays line { stroke: #fbbf24; stroke-width: 1.6; stroke-linecap: round; }
+.wi-moon circle { fill: #f5e6c8; }
+.wi-cloud { fill: #e2e8f0; stroke: rgba(15, 23, 42, 0.25); stroke-width: 0.6; }
+.wi-cloud.dim { fill: #cbd5e1; opacity: 0.85; }
+.wi-fog { stroke: #cbd5e1; stroke-width: 1.8; stroke-linecap: round; opacity: 0.8; }
+.wi-drop { stroke: #7dd3fc; stroke-width: 1.6; stroke-linecap: round; }
+.wi-flake { fill: #f1f5f9; }
+.wi-bolt { fill: #facc15; }
+
+.wi-rays,
+.wi-moon,
+.wi-cloud,
+.wi-fog,
+.wi-drop,
+.wi-flake,
+.wi-bolt {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.wi-rays { animation: wiSpin 24s linear infinite; }
+.wi-moon { animation: wiBob 7s ease-in-out infinite alternate; }
+.wi-cloud { animation: wiDrift 7s ease-in-out infinite alternate; }
+.wi-fog { animation: wiFog 5s ease-in-out infinite alternate; }
+.wi-fog.delay { animation-delay: -2.5s; }
+.wi-drop { animation: wiRain 1.3s linear infinite; }
+.wi-flake { animation: wiSnow 3s linear infinite; }
+.wi-drop.d1 { animation-delay: -0.45s; }
+.wi-drop.d2 { animation-delay: -0.9s; }
+.wi-flake.d1 { animation-delay: -1s; }
+.wi-flake.d2 { animation-delay: -2s; }
+.wi-bolt { animation: wiFlash 5s ease-out infinite; }
+
+@keyframes wiSpin { to { transform: rotate(360deg); } }
+@keyframes wiBob { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
+@keyframes wiDrift { from { transform: translateX(-1.2px); } to { transform: translateX(1.4px); } }
+@keyframes wiFog { from { transform: translateX(-2px); } to { transform: translateX(2px); } }
+
+@keyframes wiRain {
+  0%   { transform: translateY(-2px); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translateY(6px); opacity: 0; }
+}
+
+@keyframes wiSnow {
+  0%   { transform: translate(0, -2px); opacity: 0; }
+  20%  { opacity: 1; }
+  50%  { transform: translate(1px, 2px); }
+  100% { transform: translate(-1px, 7px); opacity: 0; }
+}
+
+/* Kilat: diam lama, lalu dua kedip cepat. */
+@keyframes wiFlash {
+  0%, 84%, 100% { opacity: 0; }
+  86%, 90% { opacity: 1; }
+  88% { opacity: 0.2; }
+}
+
+/* --- Glow bulan: kuat glow diatur inline dari fase, di sini cuma "napas" --- */
+.moon-glow {
+  animation: moonBreath 8s ease-in-out infinite alternate;
+}
+
+@keyframes moonBreath {
+  from { opacity: 0.7; }
+  to   { opacity: 1; }
+}
+
+/* --- Jarum kiblat: ayunan teredam sekali saat muncul --- */
+.qibla-swing {
+  /* Pusat kompas = titik (0,0) viewBox (viewBox mulai di -50), jadi origin 0 0, bukan 50%. */
+  transform-box: view-box;
+  transform-origin: 0 0;
+  animation: qiblaSwing 2.6s cubic-bezier(0.25, 0.8, 0.35, 1) 0.3s both;
+}
+
+@keyframes qiblaSwing {
+  0%   { transform: rotate(-70deg); }
+  30%  { transform: rotate(22deg); }
+  48%  { transform: rotate(-11deg); }
+  64%  { transform: rotate(5deg); }
+  80%  { transform: rotate(-2deg); }
+  92%  { transform: rotate(0.6deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* --- Titik AQI berdenyut (kategori Tidak Sehat ke atas) --- */
+.weather-dot.pulse {
+  position: relative;
+}
+
+.weather-dot.pulse::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: currentColor;
+  animation: aqiPulse 2.4s ease-out infinite;
+}
+
+@keyframes aqiPulse {
+  0%   { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .weather-icon *,
+  .moon-glow,
+  .qibla-swing,
+  .weather-dot.pulse::after {
+    animation: none !important;
+  }
+}
+
+/* ============================================================
+   1. Tipografi angka: Space Grotesk + tabular-nums.
+   Selektor ikut "*" karena aturan global `* { font-family }` di atas
+   menimpa font warisan untuk setiap elemen anak (mis. sel RollingDigits).
+   ============================================================ */
+:root {
+  --font-num: "Space Grotesk", "Outfit", sans-serif;
+}
+
+.digital-clock,
+.digital-clock *,
+#nextPrayerText,
+.zen-prayer-item .time,
+.zen-prayer-item .countdown,
+.nf-count,
+.nf-meta b,
+.puasa-percent,
+.iftar-countdown strong {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Angka raksasa 60 detik terakhir sengaja tetap Outfit tipis; cukup lebar seragam. */
+.fc-number {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   2. Panel kaca mengikuti warna langit.
+   Diturunkan dari --primary/--sky-a yang sudah ditransisikan 3 detik
+   per periode, jadi tepi & bayangan kartu ikut memudar bersama latar.
+   ============================================================ */
+.app-zen-wrapper {
+  --glass-tint: color-mix(in srgb, var(--primary) 8%, rgba(255, 255, 255, 0.025));
+  --glass-edge: color-mix(in srgb, var(--primary) 30%, rgba(255, 255, 255, 0.06));
+  --glass-shade: color-mix(in srgb, var(--sky-a) 50%, rgba(0, 0, 0, 0.55));
+}
+
+.mini-calendar,
+.popup-content {
+  border-color: var(--glass-edge);
+  background: color-mix(in srgb, var(--sky-a) 28%, rgba(12, 18, 34, 0.9));
+  box-shadow:
+    0 40px 90px -20px var(--glass-shade),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.zen-sidebar-right {
+  border-left-color: color-mix(in srgb, var(--primary) 14%, transparent);
+}
+
+@media (max-width: 1024px) and (orientation: portrait) {
+  .zen-meta-item:not(.puasa-highlight) {
+    background: var(--glass-tint);
+    border-color: var(--glass-edge);
+    box-shadow:
+      0 10px 28px -14px var(--glass-shade),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .zen-prayer-item {
+    background: var(--glass-tint);
+    border: 1px solid color-mix(in srgb, var(--primary) 14%, transparent);
+  }
+
+  .zen-prayer-item.active {
+    background: color-mix(in srgb, var(--primary) 14%, transparent);
+    border-color: var(--primary);
+    box-shadow: 0 0 22px -6px var(--primary-glow);
+  }
+}
+
+/* ============================================================
+   3. Kartu "sholat berikutnya" (.next-focus).
+   Layar lebar: tersembunyi, muncul besar di tengah saat .approach-mode.
+   Portrait: selalu tampil sebagai kartu besar di bawah jam.
+   ============================================================ */
+.next-focus {
+  display: none;
+  position: relative;
+  z-index: 20;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.nf-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--primary);
+  opacity: 0.85;
+}
+
+.nf-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  column-gap: 0.5em;
+}
+
+.nf-name-id {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-main);
+}
+
+.nf-name-ar {
+  font-family: var(--font-arabic);
+  font-size: 24px;
+  color: var(--accent);
+}
+
+.nf-count {
+  font-size: 56px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--text-main);
+}
+
+.nf-unit {
+  font-family: var(--font-main);
+  font-size: 0.2em;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-left: 0.5em;
+  vertical-align: middle;
+}
+
+.nf-bar {
+  width: min(100%, 420px);
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.nf-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  box-shadow: 0 0 12px var(--primary-glow);
+  transition: width 1s linear;
+}
+
+.nf-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.nf-meta b {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.nf-hint {
+  color: var(--accent);
+  opacity: 0.9;
+}
+
+/* 60 detik terakhir: angka detik berdenyut tiap detik; 10 detik terakhir warna aksen. */
+.next-focus.is-final .nf-count {
+  animation: nfBeat 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.next-focus.is-urgent .nf-count {
+  color: var(--accent);
+}
+
+@keyframes nfBeat {
+  from { transform: scale(1.12); opacity: 0.55; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+@keyframes nfIn {
+  from { opacity: 0; transform: translateY(24px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes nfClockIn {
+  from { opacity: 0; transform: scale(1.25); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes nfGlow {
+  from { box-shadow: 0 0 0 1px var(--primary), 0 0 24px -10px var(--primary-glow); }
+  to   { box-shadow: 0 0 0 1px var(--primary), 0 0 44px -4px var(--primary-glow); }
+}
+
+/* --- Mode "Jelang Sholat" di layar lebar (semua kecuali portrait ≤1024) --- */
+@media not all and (max-width: 1024px) and (orientation: portrait) {
+  .approach-mode .app-zen-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.9fr) minmax(0, 1fr);
+  }
+
+  .approach-mode .zen-sidebar-left {
+    display: none;
+  }
+
+  .approach-mode .zen-main-focus {
+    grid-column: 1;
+    grid-row: 1;
+    animation: nfClockIn 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .approach-mode .next-focus {
+    display: flex;
+    grid-column: 2;
+    grid-row: 1;
+    gap: clamp(8px, 2vh, 24px);
+    animation: nfIn 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both;
+  }
+
+  .approach-mode .zen-sidebar-right {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  /* Jam mengecil; isi tengahnya diskalakan dari ukuran jam supaya tetap proporsional. */
+  .approach-mode .analog-clock {
+    --clock-size: min(24vw, 62vh);
+  }
+
+  /* Panjang jarum dasar dalam px (untuk jam 480px) → di jam kecil jarum detik
+     menembus bingkai. Pakai % seperti breakpoint lain agar ikut ukuran jam. */
+  .approach-mode .hour-hand   { height: 23%; }
+  .approach-mode .minute-hand { height: 31%; }
+  .approach-mode .second-hand { height: 37.5%; }
+  .approach-mode .number { inset: 6.5%; font-size: calc(var(--clock-size) * 0.06); }
+
+  .approach-mode .digital-clock { font-size: calc(var(--clock-size) * 0.12); }
+  .approach-mode .digital-clock .seconds { font-size: calc(var(--clock-size) * 0.045); }
+  .approach-mode .date { font-size: calc(var(--clock-size) * 0.03); letter-spacing: 1px; }
+  .approach-mode .islamic { font-size: calc(var(--clock-size) * 0.045); }
+
+  /* Panel tengah sudah menampilkan nama & hitungan → hindari dobel. */
+  .approach-mode #nextPrayerText,
+  .approach-mode .final-countdown {
+    display: none;
+  }
+
+  .approach-mode .nf-kicker { font-size: clamp(12px, 1.1vw, 22px); letter-spacing: 0.5em; }
+  .approach-mode .nf-name-id { font-size: clamp(34px, min(5vw, 11vh), 120px); }
+  .approach-mode .nf-name-ar { font-size: clamp(30px, min(4vw, 9vh), 96px); }
+
+  .approach-mode .nf-count {
+    font-size: clamp(84px, min(15vw, 30vh), 360px);
+    letter-spacing: -0.03em;
+    text-shadow: 0 0 60px var(--primary-glow);
+  }
+
+  .approach-mode .nf-bar { width: min(80%, 680px); height: 6px; }
+  .approach-mode .nf-meta { font-size: clamp(14px, 1.2vw, 26px); }
+}
+
+/* ============================================================
+   4. Tata letak khusus HP / portrait:
+   jam di atas → kartu sholat berikutnya → kartu info (geser) → jadwal.
+   ============================================================ */
+.carousel-dots,
+.zen-cal-card {
+  display: none;
+}
+
+@media (max-width: 1024px) and (orientation: portrait) {
+  .zen-main-focus { order: 1; }
+  .next-focus { order: 2; }
+  .zen-meta-top,
+  .carousel-dots { order: 3; }
+  .zen-dock { order: 4; }
+  .zen-sidebar-right { order: 5; }
+
+  /* Kartu besar sudah memuat nama & hitung mundur → teks di muka jam disembunyikan. */
+  #nextPrayerText { display: none; }
+
+  .next-focus {
+    display: flex;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 18px 18px 16px;
+    border-radius: 22px;
+    background: linear-gradient(160deg,
+        color-mix(in srgb, var(--primary) 16%, transparent),
+        var(--glass-tint) 65%);
+    border: 1px solid var(--glass-edge);
+    box-shadow:
+      0 18px 40px -18px var(--glass-shade),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .next-focus.is-approach {
+    border-color: var(--primary);
+    animation: nfGlow 2.4s ease-in-out infinite alternate;
+  }
+
+  .next-focus.is-approach .nf-count { font-size: 76px; }
+
+  /* Kartu kalender (pengganti tombol dock di HP) */
+  .zen-cal-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    grid-column: 1 / -1;
+    width: 100%;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .zen-cal-card .content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .zen-cal-card strong { font-size: 16px; font-weight: 600; color: var(--text-main); }
+  .cal-card-hijri { font-family: var(--font-arabic); color: var(--accent); font-size: 15px; }
+  .zen-cal-card small { font-size: 10px; color: var(--text-dim); margin-top: 4px; letter-spacing: 0.3px; }
+  .zen-cal-card:active { transform: scale(0.98); }
+
+  /* Kartu info selebar kartu sholat & jadwal (600px) supaya tepinya segaris. */
+  .zen-meta-top {
+    width: 100%;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Tombol kalender di dock sudah diganti kartu Kalender; dock disembunyikan
+     kalau tak ada tombol lain (tombol Imsakiyah hanya muncul saat Ramadhan). */
+  .zen-dock .dock-calendar { display: none; }
+  .zen-dock:not(:has(.zen-icon-btn:not(.dock-calendar))) { display: none; }
+}
+
+/* Carousel geser untuk HP. */
+@media (max-width: 600px) and (orientation: portrait) {
+  .zen-meta-top {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    gap: 12px;
+    /* Aturan portrait lama memakai justify-content:center → isi yang meluber
+       terpotong di kiri dan kartu pertama tak terjangkau. Stretch supaya lebar
+       carousel = lebar layar (bleed 20px ke kedua tepi), bukan selebar isinya. */
+    justify-content: flex-start;
+    align-self: stretch;
+    width: auto;
+    max-width: none;
+    margin: 0 -20px;
+    padding: 4px 20px 8px;
+    align-items: stretch;
+  }
+
+  .zen-meta-top::-webkit-scrollbar { display: none; }
+
+  .zen-meta-item,
+  .zen-meta-item.puasa-highlight {
+    flex: 0 0 84%;
+    scroll-snap-align: center;
+  }
+
+  /* Kartu sekarang lebar (~84% layar): pulihkan susunan cuaca satu baris
+     yang tadinya dipadatkan untuk kartu setengah lebar. */
+  .weather-main { justify-content: flex-start; text-align: left; }
+  .weather-sep { display: inline; }
+  .weather-extra { flex-direction: row; align-items: center; gap: 4px 12px; }
+  .weather-chip { display: inline-flex; white-space: nowrap; text-align: left; }
+  .weather-dot { display: block; margin-right: 0; }
+
+  .carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: -6px;
+  }
+
+  .carousel-dots button {
+    width: 6px;
+    height: 6px;
+    padding: 0;
+    border: none;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.22);
+    cursor: pointer;
+    transition: width 0.3s ease, background 0.3s ease;
+  }
+
+  .carousel-dots button.on {
+    width: 18px;
+    background: var(--primary);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .next-focus,
+  .nf-count,
+  .approach-mode .zen-main-focus {
+    animation: none !important;
+  }
+}
+
+/* ============================================================
+   Emblem overlay azan/doa (AdzanEmblem.tsx).
+   Hanya transform & opacity yang dianimasikan.
+   ============================================================ */
+/* Hanya elemen yang dianimasikan. Jangan pakai `*`: transform-origin juga
+   berlaku untuk atribut transform SVG, sehingga rotate() tiap garis sinar
+   ikut bergeser dan sinarnya berserakan keluar emblem. */
+.ae-star,
+.ae-flame {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.ae-halo {
+  transform-box: view-box;
+  transform-origin: 50% 55%;
+  animation: aeBreath 4s ease-in-out infinite;
+}
+
+@keyframes aeBreath {
+  0%, 100% { opacity: 0.55; transform: scale(0.94); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+
+/* Sinar di belakang: tipis, berputar sangat pelan. */
+.ae-rays {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  animation: aeSpin 60s linear infinite;
+}
+
+.ae-rays line {
+  stroke: currentColor;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  opacity: 0.18;
+}
+
+@keyframes aeSpin { to { transform: rotate(360deg); } }
+
+/* Garis tepi tergambar saat muncul (pathLength=1 → dash 1 = panjang penuh). */
+.ae-line path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: aeDraw 1.8s cubic-bezier(0.45, 0, 0.2, 1) 0.2s forwards;
+}
+
+@keyframes aeDraw { to { stroke-dashoffset: 0; } }
+
+.ae-fill {
+  fill: url(#ae-fill-grad);
+  opacity: 0;
+  animation: aeFade 1.2s ease 1.2s forwards;
+}
+
+@keyframes aeFade { to { opacity: 1; } }
+
+/* Cahaya jendela & pintu: menyala setelah garis selesai, lalu berpendar bergantian. */
+.ae-light {
+  fill: currentColor;
+  opacity: 0;
+  animation:
+    aeFadeLight 1s ease 1.6s forwards,
+    aeFlicker 3.2s ease-in-out 2.6s infinite;
+}
+
+.ae-light.l1 { animation-delay: 1.8s, 3.4s; }
+.ae-light.l2 { animation-delay: 2s, 4.2s; }
+
+@keyframes aeFadeLight { to { opacity: 0.85; } }
+
+@keyframes aeFlicker {
+  0%, 100% { opacity: 0.85; }
+  45% { opacity: 0.5; }
+  60% { opacity: 0.95; }
+}
+
+/* Bulan & bintang */
+.ae-moon { fill: currentColor; opacity: 0.9; }
+
+.ae-star {
+  fill: #fff;
+  animation: aeTwinkle 2.8s ease-in-out infinite;
+}
+
+.ae-star.s1 { animation-delay: -0.7s; }
+.ae-star.s2 { animation-delay: -1.4s; }
+.ae-star.s3 { animation-delay: -2.1s; }
+
+@keyframes aeTwinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.7); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* Gelombang suara azan: tiga busur menyala berurutan menjauhi menara. */
+.ae-wave {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0;
+  animation: aeCall 2.4s ease-out infinite;
+}
+
+.ae-wave.w1 { animation-delay: 0.3s; }
+.ae-wave.w2 { animation-delay: 0.6s; }
+
+@keyframes aeCall {
+  0% { opacity: 0; }
+  20% { opacity: 0.9; }
+  60%, 100% { opacity: 0; }
+}
+
+/* --- Doa: lentera berayun + api menari --- */
+.ae-swing {
+  transform-box: view-box;
+  transform-origin: 100px 8px;
+  animation: aeSwing 4.5s ease-in-out infinite;
+}
+
+@keyframes aeSwing {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+
+.ae-flame path { fill: currentColor; }
+.ae-flame .ae-flame-core { fill: #fff; opacity: 0.85; }
+
+.ae-flame {
+  transform-origin: 50% 100%;
+  transform-box: fill-box;
+  animation: aeFlame 1.6s ease-in-out infinite;
+}
+
+@keyframes aeFlame {
+  0%, 100% { transform: scale(1, 1) rotate(-2deg); }
+  30% { transform: scale(0.94, 1.08) rotate(2deg); }
+  60% { transform: scale(1.04, 0.95) rotate(-1deg); }
+}
+
+.ae-flame-glow {
+  fill: url(#ae-glow);
+  animation: aeBreath 2.2s ease-in-out infinite;
 }
