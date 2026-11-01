@@ -3791,3 +3791,133 @@ body::before {
   fill: url(#ae-glow);
   animation: aeBreath 2.2s ease-in-out infinite;
 }
+
+/* ============================================================
+   Skala TV / layar lebar landscape.
+   Desain acuan = 1920×1080. Semua ukuran = N × --u, dengan --u = 1px di
+   1920×1080, 0,5px di 960×540 (CSS viewport umum Android/Google TV) dan
+   2px di 4K. Dulu ukuran memakai px tetap dengan dua anak tangga (1600 &
+   2560), sehingga 4K tampil mungil dan 960×540 terpotong.
+   --ut = versi berlantai untuk teks & jarak agar tetap terbaca di layar kecil.
+   --um = lantai lebih tinggi untuk kalender & popup (modal).
+   Ditaruh paling akhir supaya menang atas tangga ukuran lama.
+   ============================================================ */
+@media (orientation: landscape) and (min-width: 900px) and (min-height: 501px) {
+  .app-zen-wrapper {
+    --u: calc(min(100vw, 177.78vh) / 1920);
+    --ut: max(var(--u), 0.62px);
+    --um: max(var(--u), 0.8px);
+  }
+
+  .app-zen-grid {
+    grid-template-columns:
+      minmax(calc(340 * var(--u)), 1fr)
+      minmax(calc(620 * var(--u)), 2fr)
+      minmax(calc(340 * var(--u)), 1fr);
+    padding: 0 5vw;
+  }
+
+  /* --- Jam --- */
+  .analog-clock { --clock-size: calc(700 * var(--u)); }
+
+  .hour-hand   { height: 23%;   width: calc(8 * var(--u)); }
+  .minute-hand { height: 31%;   width: calc(5 * var(--u)); }
+  .second-hand { height: 37.5%; width: max(calc(3 * var(--u)), 1.5px); }
+
+  .number { inset: 6.5%; font-size: calc(30 * var(--u)); }
+  .digital-clock { font-size: calc(64 * var(--u)); }
+  .digital-clock .seconds { font-size: calc(22 * var(--u)); }
+  .date { font-size: calc(18 * var(--u)); letter-spacing: calc(2 * var(--u)); }
+  .islamic { font-size: calc(24 * var(--u)); }
+  /* Dulu 16px tetap: di TV nyaris tak terbaca. */
+  #nextPrayerText { font-size: calc(22 * var(--u)); }
+
+  /* --- Sidebar kiri --- */
+  .zen-meta-top { gap: calc(20 * var(--ut)); }
+  .zen-meta-item { gap: calc(6 * var(--ut)); }
+  .zen-meta-item .label { font-size: calc(14 * var(--ut)); letter-spacing: calc(3 * var(--ut)); }
+  .zen-meta-item .content,
+  #weather-info { font-size: calc(20 * var(--ut)); }
+
+  .zen-meta-item.puasa-highlight {
+    padding: calc(12 * var(--ut)) calc(14 * var(--ut));
+    border-radius: calc(16 * var(--ut));
+  }
+
+  .puasa-content strong { font-size: calc(22 * var(--ut)); }
+  .puasa-percent { font-size: calc(40 * var(--ut)); }
+  .puasa-content em { font-size: calc(15 * var(--ut)); }
+  .puasa-progress-wrap small { font-size: calc(14 * var(--ut)); }
+  .iftar-countdown span { font-size: calc(13 * var(--ut)); }
+  .iftar-countdown strong { font-size: calc(24 * var(--ut)); }
+
+  .zen-icon-btn {
+    width: calc(48 * var(--ut));
+    height: calc(48 * var(--ut));
+    font-size: calc(24 * var(--ut));
+  }
+
+  .moon-svg { width: calc(56 * var(--ut)); height: calc(56 * var(--ut)); }
+  .qibla-svg { width: calc(64 * var(--ut)); height: calc(64 * var(--ut)); }
+  .moon-label { font-size: calc(14 * var(--ut)); }
+  .qibla-deg { font-size: calc(16 * var(--ut)); }
+  .moon-day,
+  .qibla-name { font-size: calc(10.5 * var(--ut)); }
+  .zen-sky-item .content.zen-sky-row { gap: calc(18 * var(--ut)); }
+  .zen-sky-caption,
+  .sky-legend-note { font-size: calc(11 * var(--ut)); }
+  .sky-legend-item { font-size: calc(13 * var(--ut)); }
+  .sky-legend-item i { width: calc(11 * var(--ut)); height: calc(11 * var(--ut)); }
+
+  /* --- Sidebar kanan (jadwal) --- */
+  .zen-sidebar-right { gap: calc(24 * var(--ut)); padding: 0 calc(20 * var(--ut)); }
+  .zen-prayer-item { padding: calc(14 * var(--ut)) 0; }
+  .zen-prayer-item.active { padding-left: calc(12 * var(--ut)); }
+  .zen-prayer-item .label { font-size: calc(14 * var(--ut)); letter-spacing: calc(6 * var(--ut)); }
+  .zen-prayer-item .time { font-size: calc(30 * var(--ut)); }
+  .zen-prayer-item .countdown { font-size: calc(15 * var(--ut)); }
+  .row-progress { height: max(calc(3 * var(--u)), 2px); }
+
+  .zen-footer {
+    font-size: calc(16 * var(--ut));
+    right: calc(40 * var(--u));
+    bottom: calc(20 * var(--u));
+  }
+
+  /* --- Mode Jelang Sholat --- */
+  .approach-mode .next-focus { gap: calc(22 * var(--u)); }
+  .approach-mode .nf-kicker { font-size: calc(21 * var(--ut)); }
+  .approach-mode .nf-name-id { font-size: calc(96 * var(--u)); }
+  .approach-mode .nf-name-ar { font-size: calc(77 * var(--u)); }
+  .approach-mode .nf-count { font-size: calc(288 * var(--u)); }
+  .approach-mode .nf-bar { height: calc(6 * var(--ut)); }
+  .approach-mode .nf-meta { font-size: calc(23 * var(--ut)); }
+
+  /* --- Kalender & popup --- */
+  .mini-calendar {
+    max-width: calc(640 * var(--um));
+    padding: calc(48 * var(--um));
+    border-radius: calc(40 * var(--um));
+  }
+
+  .calendar-header { margin-bottom: calc(30 * var(--um)); }
+  .calendar-title #calendar-month-year { font-size: calc(28 * var(--um)); }
+  .calendar-title .hijri-month { font-size: calc(16 * var(--um)); }
+  .calendar-weekdays { font-size: calc(12 * var(--um)); }
+  .calendar-dates { gap: calc(12 * var(--um)); }
+  .calendar-date .date-number { font-size: calc(22 * var(--um)); }
+  .calendar-date .date-hijri { font-size: calc(12 * var(--um)); }
+  .calendar-date .date-pasaran { font-size: calc(11 * var(--um)); }
+
+  .popup-content {
+    width: calc(420 * var(--um));
+    padding: calc(40 * var(--um));
+    border-radius: calc(40 * var(--um));
+  }
+
+  .popup-date { font-size: calc(22 * var(--um)); }
+  .popup-weton { font-size: calc(12 * var(--um)); }
+  .prayer-grid { gap: calc(12 * var(--um)); margin-top: calc(24 * var(--um)); }
+  .prayer-time-item { font-size: calc(14 * var(--um)); padding: calc(12 * var(--um)) 0; }
+  .prayer-time-item span:first-child { font-size: calc(11 * var(--um)); }
+}
